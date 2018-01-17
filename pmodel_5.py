@@ -5,6 +5,7 @@ from mesa.space import ContinuousSpace
 from mesa.datacollection import DataCollector
 import numpy as np
 
+
 class PrestigeAgent(Agent):
     """An agent with fixed initial number of copies."""
     def __init__(self, unique_id, belief, model):
@@ -28,7 +29,6 @@ class PrestigeAgent(Agent):
         my_pos = self.pos
         neighbors_dist = [self.model.grid.get_distance(my_pos, p) for p in neighbors_pos]
 
-        
         nc = np.array(neighbors_copies) #turns neighbors copies into an array so that we can divide by neighbors dist
         nd = np.array(neighbors_dist) #turn neighbors_dist into an array so it can be a denominator
         neighbors_probs = (nc/(nd+1)) #add one so that we don't divide by zero
@@ -36,12 +36,13 @@ class PrestigeAgent(Agent):
         other_agent = np.random.choice(neighbors, p=neighbors_probs) #weighted random choice of neighbors probs
         other_agent.copies +=1 #give the agent who was copies +1 more copy in their count
         self.belief = other_agent.belief #Here I would like to 'tag' the others' belief that was acquired by the agent, but also keep a record of the beliefs over time -- send beliefs to empty list?
-      
+
     def step(self):
         #The agent's step will go here.
         self.belief_history.append(self.belief)
         self.copy()
-    
+
+
 class PrestigeModel(Model):
     """A model with some number of agents."""
     def __init__(self, N, width, height):
@@ -52,7 +53,7 @@ class PrestigeModel(Model):
         for i in range(self.num_agents):
             a = PrestigeAgent(i, i, self)
             self.schedule.add(a)
-            
+
             # Add the agent to a random grid cell
             #x = random.randrange(self.grid.width)
             x = i % self.grid.width
@@ -60,10 +61,10 @@ class PrestigeModel(Model):
             y = i // self.grid.height
 
             self.grid.place_agent(a, (x, y))
-            
+
         self.datacollector = DataCollector(
             agent_reporters={"Copies": lambda a: a.copies})
-            
+
     def step(self):
         '''Advance the model by one step.'''
         self.datacollector.collect(self)
@@ -72,8 +73,3 @@ class PrestigeModel(Model):
 
 
 #### new iterator for returning N agents and their coordinates on the grid
-
-
-
-
-       
