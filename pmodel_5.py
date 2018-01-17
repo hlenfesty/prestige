@@ -30,7 +30,7 @@ class PrestigeAgent(Agent):
         nd = np.array(self.neighbors_dist)  # turn neighbors_dist into an array so it can be a denominator
         neighbors_probs = (nc/(nd+1))  # add one so that we don't divide by zero
         neighbors_probs = neighbors_probs/sum(neighbors_probs)  # normalizes the probs to sum to 1
-        other_agent = np.random.choice(neighbors, p=neighbors_probs)  # weighted random choice of neighbors probs
+        other_agent = neighbors[np.random.multinomial(1, neighbors_probs).argmax()]
         other_agent.copies += 1  # give the agent who was copies +1 more copy in their count
         self.belief = other_agent.belief  # Here I would like to 'tag' the others' belief that was acquired by the agent, but also keep a record of the beliefs over time -- send beliefs to empty list?
 
