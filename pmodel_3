@@ -1,0 +1,76 @@
+# model.py
+from mesa import Agent, Model
+from mesa.time import RandomActivation
+from mesa.space import MultiGrid
+from mesa.datacollection import DataCollector
+from mesa.space import MultiGrid
+import random
+import numpy as np
+
+class PrestigeAgent(Agent):
+    """An agent with fixed initial number of copies."""
+    def __init__(self, unique_id, belief, model):
+        super().__init__(unique_id, model)
+        self.belief= belief #every agent starts out with a unique belief
+        self.belief_history = [] #every agent's belief will be recorded in an empty list
+        self.copies = 1 #every agent begins with N=1 copies
+
+    def copy(self):
+        #rules for when and who copying
+        cellmates = self.model.grid.get_cell_list_contents([self.pos]) #returns a list of all agents in the tuple position self.pos-- one cell only
+        cellmates_copies = [c.copies for c in cellmates] #creates a list of N copies for every agent existing in the above list of cellmates
+        #max_copies = max(copies_list) #finds the max/largest N copies the contents of cellmates_copies.  Max could exist 2 or more times, but output is only one number (aka the max)
+        #max_mates = [c for c in cellmates if c.copies == max_copies] #identifies who/which agent has the max copies
+        cellmates_probs = [(c / (1.0 * sum(cellmates_copies))) for c in cellmates_copies] #calcuate ratio for agents of their copies relative to all copies
+        other_agent = numpy.random.choice(cellmates, p=cellmates_probs)
+        # cellmates_probs_cumsum = np.cumsum(np.array(cellmates_probs))
+        # rnd = random.random() #Generate a random number between 0 and 1 and use this to pick a person to copy
+        # chosen = np.argmax(cellmates_probs_cumsum > rnd)
+        # other_agent = cellmates[chosen]
+
+        # print("random number selected", rnd)
+        # temp = 0.0
+        # for i, probability in enumerate(cellmates_probs): #set up a counter to index the list of cellmates_probs as the loop below runs
+        #     temp += probability #add the temp value of 0.0 to each value in the list cellmates_probs
+        #     if temp > rnd: #returns an immutable list of tuples of (index, value) where values from cellmates_probs that meet the threshold of rnd are stored
+        #         return cellmates[i] #return the i'th cellmate as the agent to copy
+        #     for index, value in enumerate(cellmates_probs, start = 0):
+        #         print ("index, value", index, value)
+
+        # other_agent = random.choice(cellmates)
+       
+        other_agent.copies +=1 #give the agent who was copies +1 more copy in their count
+        self.belief = other_agent.belief #Here I would like to 'tag' the others' belief that was acquired by the agent, but also keep a record of the beliefs over time -- send beliefs to empty list?
+      
+    def step(self):
+        #The agent's step will go here.
+        self.belief_history.append(self.belief)
+        self.copy()
+    
+class PrestigeModel(Model):
+    """A model with some number of agents."""
+    def __init__(self, N, width, height):
+        self.num_agents = N
+        self.grid = MultiGrid(width, height, True) #True is for torroidal spal
+        self.schedule = RandomActivation(self)
+        # Create agents
+        for i in range(self.num_agents):
+            a = PrestigeAgent(i, i, self)
+            self.schedule.add(a)
+            
+            # Add the agent to a random grid cell
+            x = random.randrange(self.grid.width)
+            y = random.randrange(self.grid.height)
+            self.grid.place_agent(a, (x,y))
+            
+        self.datacollector = DataCollector(
+            agent_reporters={"Copies": lambda a: a.copies})
+            
+    def step(self):
+        '''Advance the model by one step.'''
+        self.datacollector.collect(self)
+        self.schedule.step()
+
+
+
+       
