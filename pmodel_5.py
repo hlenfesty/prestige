@@ -25,12 +25,9 @@ class PrestigeAgent(Agent):
                     # )
 
         neighbors_copies = [n.copies for n in neighbors]  # returns a list of neighbors' copies
-        neighbors_pos = [n.pos for n in neighbors]
-        my_pos = self.pos
-        neighbors_dist = [self.model.grid.get_distance(my_pos, p) for p in neighbors_pos]
 
         nc = np.array(neighbors_copies)  # turns neighbors copies into an array so that we can divide by neighbors dist
-        nd = np.array(neighbors_dist)  # turn neighbors_dist into an array so it can be a denominator
+        nd = np.array(self.neighbors_dist)  # turn neighbors_dist into an array so it can be a denominator
         neighbors_probs = (nc/(nd+1))  # add one so that we don't divide by zero
         neighbors_probs = neighbors_probs/sum(neighbors_probs)  # normalizes the probs to sum to 1
         other_agent = np.random.choice(neighbors, p=neighbors_probs)  # weighted random choice of neighbors probs
@@ -51,8 +48,8 @@ class PrestigeModel(Model):
         self.schedule = RandomActivation(self)
         # Create agents
         for i in range(self.num_agents):
-            a = PrestigeAgent(i, i, self)
-            self.schedule.add(a)
+            agent = PrestigeAgent(i, i, self)
+            self.schedule.add(agent)
 
             # Add the agent to a random grid cell
             #x = random.randrange(self.grid.width)
@@ -60,7 +57,11 @@ class PrestigeModel(Model):
             #y = random.randrange(self.grid.height)
             y = i // self.grid.height
 
-            self.grid.place_agent(a, (x, y))
+            self.grid.place_agent(agent, (x, y))
+
+        agents_pos = [a.pos for a in self.schedule.agents]
+        for a in self.schedule.agents:
+            a.neighbors_dist = [self.grid.get_distance(a.pos, p) for p in agents_pos]
 
         self.datacollector = DataCollector(
             agent_reporters={"Copies": lambda a: a.copies})
