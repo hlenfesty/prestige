@@ -10,9 +10,9 @@ class PrestigeAgent(Agent):
     """An agent with fixed initial number of copies."""
     def __init__(self, unique_id, belief, model):
         super().__init__(unique_id, model)
-        self.belief= belief #every agent starts out with a unique belief
-        self.belief_history = [] #every agent's belief will be recorded in an empty list
-        self.copies = 1 #every agent begins with N=1 copies
+        self.belief = belief  # every agent starts out with a unique belief
+        self.belief_history = []  # every agent's belief will be recorded in an empty list
+        self.copies = 1  # every agent begins with N=1 copies
 
     def copy(self):
         #rules for when and who copying
@@ -20,22 +20,22 @@ class PrestigeAgent(Agent):
         # neighbors = self.model.grid.get_neighbors( #returns a list of neighbors
                     #     self.pos,
                     #     moore=True,
-                    #     include_center=True, 
+                    #     include_center=True,
                     #     radius=20
                     # )
 
-        neighbors_copies = [n.copies for n in neighbors] #returns a list of neighbors' copies
+        neighbors_copies = [n.copies for n in neighbors]  # returns a list of neighbors' copies
         neighbors_pos = [n.pos for n in neighbors]
         my_pos = self.pos
         neighbors_dist = [self.model.grid.get_distance(my_pos, p) for p in neighbors_pos]
 
-        nc = np.array(neighbors_copies) #turns neighbors copies into an array so that we can divide by neighbors dist
-        nd = np.array(neighbors_dist) #turn neighbors_dist into an array so it can be a denominator
-        neighbors_probs = (nc/(nd+1)) #add one so that we don't divide by zero
-        neighbors_probs = neighbors_probs/sum(neighbors_probs) #normalizes the probs to sum to 1
-        other_agent = np.random.choice(neighbors, p=neighbors_probs) #weighted random choice of neighbors probs
-        other_agent.copies +=1 #give the agent who was copies +1 more copy in their count
-        self.belief = other_agent.belief #Here I would like to 'tag' the others' belief that was acquired by the agent, but also keep a record of the beliefs over time -- send beliefs to empty list?
+        nc = np.array(neighbors_copies)  # turns neighbors copies into an array so that we can divide by neighbors dist
+        nd = np.array(neighbors_dist)  # turn neighbors_dist into an array so it can be a denominator
+        neighbors_probs = (nc/(nd+1))  # add one so that we don't divide by zero
+        neighbors_probs = neighbors_probs/sum(neighbors_probs)  # normalizes the probs to sum to 1
+        other_agent = np.random.choice(neighbors, p=neighbors_probs)  # weighted random choice of neighbors probs
+        other_agent.copies += 1  # give the agent who was copies +1 more copy in their count
+        self.belief = other_agent.belief  # Here I would like to 'tag' the others' belief that was acquired by the agent, but also keep a record of the beliefs over time -- send beliefs to empty list?
 
     def step(self):
         #The agent's step will go here.
@@ -47,7 +47,7 @@ class PrestigeModel(Model):
     """A model with some number of agents."""
     def __init__(self, N, width, height):
         self.num_agents = N
-        self.grid = ContinuousSpace(width, height, True) #True is for torroidal
+        self.grid = ContinuousSpace(width, height, True)  # True is for torroidal
         self.schedule = RandomActivation(self)
         # Create agents
         for i in range(self.num_agents):
