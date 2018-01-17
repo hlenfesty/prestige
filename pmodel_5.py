@@ -70,7 +70,6 @@ class PrestigeModel(Model):
         '''Advance the model by one step.'''
         self.datacollector.collect(self)
         self.schedule.step()
-        print([a.copies for a in self.schedule.agents])
 
 
 #### new iterator for returning N agents and their coordinates on the grid
