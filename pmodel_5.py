@@ -3,7 +3,6 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.space import ContinuousSpace
 from mesa.datacollection import DataCollector
-import random
 import numpy as np
 
 class PrestigeAgent(Agent):
