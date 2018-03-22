@@ -13,6 +13,8 @@ height = 20
 donut = True
 # how far away agents count as neighbors
 neighbor_distance = 3
+# calculate sigmas
+sigmas = False
 
 ''' SIMULATION '''
 
@@ -29,25 +31,38 @@ models = []
 
 # create and run models
 for j in range(repeats):
-    models.append(PrestigeModel(N, width, height, donut, neighbor_distance))
+    models.append(PrestigeModel(N, width, height, donut, neighbor_distance, sigmas))
     for i in range(steps):
         models[j].step()
 
 ''' PLOT FIGURES '''
 
-# plot sigmas over time
-plt.figure("variation over time")
-model = models[0]  # get the first model only
-agents = model.agents  # get the list of agents from the scheduler from the model
-avg_sigmas_local = agents['sigma_local_history'].mean(axis=1)
-avg_sigmas_global = agents['sigma_global_history'].mean(axis=1)
+if sigmas:
 
-time = range(steps + 1)
-plt.plot(time, avg_sigmas_local, color='orange')
-plt.plot(time, avg_sigmas_global, color='blue')
-plt.xlabel('time')
-plt.ylabel('local vs global variation')
-plt.title('local vs global variation over time')
+    # plot sigmas over time
+    plt.figure("variation over time")
+    model = models[0]  # get the first model only
+    agents = model.agents  # get the list of agents from the scheduler from the model
+    avg_sigmas_local = agents['sigma_local_history'].mean(axis=1)
+    avg_sigmas_global = agents['sigma_global_history'].mean(axis=1)
+
+    time = range(steps + 1)
+    plt.plot(time, avg_sigmas_local, color='orange')
+    plt.plot(time, avg_sigmas_global, color='blue')
+    plt.xlabel('time')
+    plt.ylabel('local vs global variation')
+    plt.title('local vs global variation over time')
+
+    # #plot histogram of sigmas
+
+    for model in models:
+        all_sigmas_local = np.append(all_sigmas_local, model.agents['sigma_local'])
+        all_sigmas_global = np.append(all_sigmas_global, model.agents['sigma_global'])
+
+    plt.figure("global variance")
+    plt.hist(all_sigmas_global)
+    plt.figure("local variance")
+    plt.hist(all_sigmas_local)
 
 # #plot the frequency of N copies
 
@@ -74,16 +89,5 @@ area = model.agents['copied']
 
 plt.figure("heatmap")
 plt.scatter(xs, ys, s=area, c=colors, alpha=.5)  # alpha is transparency
-
-# #plot histogram of sigmas
-
-for model in models:
-    all_sigmas_local = np.append(all_sigmas_local, model.agents['sigma_local'])
-    all_sigmas_global = np.append(all_sigmas_global, model.agents['sigma_global'])
-
-plt.figure("global variance")
-plt.hist(all_sigmas_global)
-plt.figure("local variance")
-plt.hist(all_sigmas_local)
 
 plt.show()

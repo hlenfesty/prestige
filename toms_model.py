@@ -5,13 +5,14 @@ from random import shuffle
 class PrestigeModel():
     """A model of prestiged biased copying."""
 
-    def __init__(self, N, width, height, donut, neighbor_distance):
+    def __init__(self, N, width, height, donut, neighbor_distance, sigmas):
         # initialize the model
         self.num_agents = N
         self.width = width
         self.height = height
         self.donut = donut
         self.neighbor_distance = neighbor_distance
+        self.sigmas = sigmas
 
         # agents are represented with a dictionary of arrays
         self.agents = {
@@ -87,26 +88,26 @@ class PrestigeModel():
                 self.agents['copied'][other_agent] = self.agents['copied'][other_agent] + 1
                 self.agents['belief'][i] = self.agents['belief'][other_agent]
 
-        # calculate sigma global and sigma local
-        sigma_global = np.zeros(shape=(self.num_agents), dtype=float)
-        sigma_local = np.zeros(shape=(self.num_agents), dtype=float)
-
-        for i in list(range(self.num_agents)):
-            # sigma global
-            sigma_global[i] = np.mean(self.agents['belief'] != self.agents['belief'][i])
-            # sigma local
-            local_beliefs = np.array([b for b, d in zip(self.agents['belief'], self.agents['distance'][i, :]) if d <= self.neighbor_distance and d > 0])
-            sigma_local[i] = np.mean(local_beliefs != self.agents['belief'][i])
-
-        # this line takes into account that sigma global includes yourself and so removes you from the calculation
-        sigma_global = (sigma_global)/(1-1/self.num_agents)
-
-        # save it
-        self.agents['sigma_global'] = sigma_global
-        self.agents['sigma_local'] = sigma_local
-
-        # save everything to history tables
         self.agents['belief_history'] = np.vstack((self.agents['belief_history'], self.agents['belief']))
         self.agents['copied_history'] = np.vstack((self.agents['copied_history'], self.agents['copied']))
-        self.agents['sigma_global_history'] = np.vstack((self.agents['sigma_global_history'], self.agents['sigma_global']))
-        self.agents['sigma_local_history'] = np.vstack((self.agents['sigma_local_history'], self.agents['sigma_local']))
+
+        if self.sigmas:
+            # calculate sigma global and sigma local
+            sigma_global = np.zeros(shape=(self.num_agents), dtype=float)
+            sigma_local = np.zeros(shape=(self.num_agents), dtype=float)
+
+            for i in list(range(self.num_agents)):
+                # sigma global
+                sigma_global[i] = np.mean(self.agents['belief'] != self.agents['belief'][i])
+                # sigma local
+                local_beliefs = np.array([b for b, d in zip(self.agents['belief'], self.agents['distance'][i, :]) if d <= self.neighbor_distance and d > 0])
+                sigma_local[i] = np.mean(local_beliefs != self.agents['belief'][i])
+
+            # this line takes into account that sigma global includes yourself and so removes you from the calculation
+            sigma_global = (sigma_global)/(1-1/self.num_agents)
+
+            # save it
+            self.agents['sigma_global'] = sigma_global
+            self.agents['sigma_local'] = sigma_local
+            self.agents['sigma_global_history'] = np.vstack((self.agents['sigma_global_history'], self.agents['sigma_global']))
+            self.agents['sigma_local_history'] = np.vstack((self.agents['sigma_local_history'], self.agents['sigma_local']))
