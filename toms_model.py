@@ -80,7 +80,7 @@ class PrestigeModel():
         for i in indexes:
 
             # pick who to copy
-            probs = (self.agents['copied']+1)*np.exp(-self.agents['distance'][i, :]**2)
+            probs = (self.agents['copied']+1)*np.exp(-self.agents['distance'][i, :]*3)
             probs = probs / sum(probs)
             other_agent = list(range(self.num_agents))[np.random.multinomial(1, probs).argmax()]
 
