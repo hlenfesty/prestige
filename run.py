@@ -15,6 +15,8 @@ donut = True
 neighbor_distance = 3
 # calculate sigmas
 sigmas = False
+# save a movie of the simulation?
+save_movie = False
 
 ''' SIMULATION '''
 
@@ -89,5 +91,44 @@ area = model.agents['copied']
 
 plt.figure("heatmap")
 plt.scatter(xs, ys, s=area, c=colors, alpha=.5)  # alpha is transparency
+
+# try making a video
+
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+
+class AnimatedScatter(object):
+    """An animated scatter plot using matplotlib.animations.FuncAnimation."""
+    def __init__(self):
+        self.numpoints = N
+
+        # Setup the figure and axes...
+        self.fig, self.ax = plt.subplots()
+        # Then setup FuncAnimation.
+        self.ani = animation.FuncAnimation(self.fig, self.update, frames=steps+1, interval=50,
+                                           init_func=self.setup_plot, blit=True)
+
+    def setup_plot(self):
+        """Initial drawing of the scatter plot."""
+        x, y, s, c = model.agents['x'], model.agents['y'], model.agents['copied_history'][0, :]+1, model.agents['belief_history'][0, :]
+        self.scat = self.ax.scatter(x, y, c=c, s=s, animated=True)
+        return self.scat,
+
+    def update(self, i):
+        """Update the scatter plot."""
+        s, c = model.agents['copied_history'][i, :]+1, model.agents['belief_history'][i, :]
+
+        # Set sizes...
+        self.scat._sizes = s
+        # Set colors..
+        self.scat.set_array(c)
+        self.scat._alpha = 0.5
+
+        return self.scat,
+
+a = AnimatedScatter()
+if save_movie:
+    a.ani.save('clip.mp4', writer='ffmpeg')
 
 plt.show()
