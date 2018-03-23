@@ -51,6 +51,7 @@ class PrestigeModel():
             self.agents['belief'][i] = round(i)
 
         # add the beliefs as the first row of the belief history matrix
+        shuffle(self.agents['belief'])
         self.agents['belief_history'] = self.agents['belief']
 
         # create a distance matrix
