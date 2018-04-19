@@ -87,7 +87,7 @@ model = models[0]
 xs = model.agents['x']
 ys = model.agents['y']
 colors = model.agents['belief']
-area = model.agents['copied']
+area = model.agents['copied']+1
 
 plt.figure("heatmap")
 plt.scatter(xs, ys, s=area, c=colors, alpha=.5)  # alpha is transparency
