@@ -3,7 +3,7 @@
 # how many repeat models
 repeats = 1
 # how many steps per model
-steps = 200
+steps = 10
 # population size
 N = 900
 # size of the world
@@ -87,7 +87,8 @@ model = models[0]
 xs = model.agents['x']
 ys = model.agents['y']
 colors = model.agents['belief']
-area = model.agents['copied']
+area = model.agents['copied_norm']
+#area = model.agents['copied_b']
 
 plt.figure("heatmap")
 plt.scatter(xs, ys, s=area, c=colors, alpha=.5)  # alpha is transparency

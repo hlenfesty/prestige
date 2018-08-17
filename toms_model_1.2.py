@@ -8,8 +8,8 @@ class PrestigeModel():
     def __init__(self, N, width, height, donut, neighbor_distance, sigmas):
         # initialize the model
         self.num_agents = N
-        self.width = width
-        self.height = height
+        self.width = width #THE WIDTH OF THE GRID
+        self.height = height #THE HEIGHT OF THE GRID
         self.donut = donut
         self.neighbor_distance = neighbor_distance
         self.sigmas = sigmas
@@ -30,8 +30,12 @@ class PrestigeModel():
             'belief_history': np.empty(shape=(self.num_agents), dtype=int),
             # the number of times each agent has been copied
             'copied': np.zeros(shape=(self.num_agents), dtype=int),
-            # the number of times each agent had been coped at each generation
+            # a normalized variant of 'copied' for the purposes of plotting circles with a finite area
+            'copied_norm': np.zeros(shape=(self.num_agents), dtype=float),
+            # the number of times each agent had been copied at each generation
             'copied_history': np.zeros(shape=(self.num_agents), dtype=int),
+            # the number of times each agent has been copied_norm at each generation
+            'copied_norm_history': np.zeros(shape=(self.num_agents), dtype=int),
             # the proportion of agents that have different beliefs to you
             'sigma_global': np.ones(shape=(self.num_agents), dtype=float),
             # the proportion of agents that had different beliefs to you at each generation
@@ -44,13 +48,15 @@ class PrestigeModel():
 
         # Create the agents
         # simply updates the id, x, y and belief values of the agent dictionary
+        # WHY DO WE NEED TO UPDATE IDS AND COORDINATES IF THOSE DON'T CHANGE?
         for i in range(self.num_agents):
-            self.agents['id'][i] = round(i)
-            self.agents['x'][i] = round((i % self.width))
-            self.agents['y'][i] = round((i // self.height))
-            self.agents['belief'][i] = round(i)
+            self.agents['id'][i] = round(i) #WHY DO YOU HAVE TO ROUND WHAT'S ALREADY AN INTEGER?
+            self.agents['x'][i] = round((i % self.width)) #TAKES THE AGENTS X COORDINATE, DIVIDES BY WIDTH OF GRID, GIVES REMAINDER
+            self.agents['y'][i] = round((i // self.height)) #// 'FLOOR DIVISIN': ROUNDS DOWN TO NEAREST WHOLE NUMBER
+            self.agents['belief'][i] = round(i) #THIS MUST BE UPDATING ON EVERY MODEL STEP...
 
         # add the beliefs as the first row of the belief history matrix
+        #SHUFFLING IS NECESSARY BECAUSE IDS INITIALLY MATCH BELIEFS
         shuffle(self.agents['belief'])
         self.agents['belief_history'] = self.agents['belief']
 
@@ -65,7 +71,7 @@ class PrestigeModel():
             if self.donut:
                 dx2 = self.width - dx
                 dy2 = self.height - dy
-                dx = np.minimum(dx, dx2)
+                dx = np.minimum(dx, dx2) #RETURNS THE LESSER VALUE OF THE DX VS DX2
                 dy = np.minimum(dy, dy2)
 
             dist = (dx**2 + dy**2)**0.5
@@ -79,10 +85,13 @@ class PrestigeModel():
         shuffle(indexes)
         for i in indexes:
 
-            # pick who to copy, 'copied' is a list of agents' copies
+            #pick who to copy, 'copied' is a list of agents' copies
             probs = ((self.agents['copied']+1)**4)*np.exp(-self.agents['distance'][i, 
-                :]*3)
+                :]*3) 
             probs = probs / sum(probs)
+            probs = ((self.agents[('copied'+1)/sum('copied'+1))**4
+
+
             other_agent = list(range(self.num_agents))[np.random.multinomial(1, probs).argmax()]
 
             # if they aren't yourself, copy them
@@ -92,6 +101,10 @@ class PrestigeModel():
 
         self.agents['belief_history'] = np.vstack((self.agents['belief_history'], self.agents['belief']))
         self.agents['copied_history'] = np.vstack((self.agents['copied_history'], self.agents['copied']))
+        
+
+        #self.agents[copied_b] = self.agents['copied'+1)/sum(copied+1)
+
 
         if self.sigmas:
             # calculate sigma global and sigma local
