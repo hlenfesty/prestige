@@ -3,7 +3,7 @@
 # how many repeat models
 repeats = 1
 # how many steps per model
-steps = 10
+steps = 200
 # population size
 N = 900
 # size of the world
@@ -16,9 +16,7 @@ neighbor_distance = 3
 # calculate sigmas
 sigmas = True
 # save a movie of the simulation?
-save_movie = True
-# add innovation to the model?
-innovate = True
+save_movie = False
 
 ''' SIMULATION '''
 
@@ -89,8 +87,7 @@ model = models[0]
 xs = model.agents['x']
 ys = model.agents['y']
 colors = model.agents['belief']
-area = model.agents['copied'] #USED TO SAY COPIED_NORM BUT GAVE ME A TRACEBACK
-#area = model.agents['copied_b']
+area = model.agents['copied']+1
 
 plt.figure("heatmap")
 plt.scatter(xs, ys, s=area, c=colors, alpha=.5)  # alpha is transparency
@@ -132,6 +129,6 @@ class AnimatedScatter(object):
 
 a = AnimatedScatter()
 if save_movie:
-    a.ani.save('clip.mp4', writer='ffmpeg', fps=5)
+    a.ani.save('clip.mp4', writer='ffmpeg')
 
 plt.show()

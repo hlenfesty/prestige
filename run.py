@@ -3,27 +3,35 @@
 # how many repeat models
 repeats = 1
 # how many steps per model
-steps = 200
+steps = 50
 # population size
-N = 900
+N = 400
 # size of the world
-width = 30
-height = 30
+width = 20
+height = 20
 # is it a torroidal world?
 donut = True
 # how far away agents count as neighbors
 neighbor_distance = 3
+# Probability of innovation
+innovate = 0.02
+# population type: random, grid, villages, city
+population = "city"
+# exponential increase of prestige
+exponent = 4
 # calculate sigmas
 sigmas = True
 # save a movie of the simulation?
 save_movie = False
 
+
 ''' SIMULATION '''
 
 # imports
 import matplotlib.pyplot as plt
-from toms_model import PrestigeModel
+from model import PrestigeModel
 import numpy as np
+import pickle as pickle
 
 # create empty arrays
 all_copies = np.array([], dtype=int)
@@ -33,9 +41,18 @@ models = []
 
 # create and run models
 for j in range(repeats):
-    models.append(PrestigeModel(N, width, height, donut, neighbor_distance, sigmas))
+    models.append(PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, sigmas))
     for i in range(steps):
         models[j].step()
+
+#save the output of the model by 'pickling' the agent dictionary
+
+agents_dict = model.agents
+filename = 'pickled_models'
+outfile = open('pickled_models', 'wb') #write bytes
+pickle.dump(model.agents, outfile)
+outfile.close()
+
 
 ''' PLOT FIGURES '''
 
@@ -87,7 +104,8 @@ model = models[0]
 xs = model.agents['x']
 ys = model.agents['y']
 colors = model.agents['belief']
-area = model.agents['copied']+1
+area = model.agents['copied'] #USED TO SAY COPIED_NORM BUT GAVE ME A TRACEBACK
+#area = model.agents['copied_b']
 
 plt.figure("heatmap")
 plt.scatter(xs, ys, s=area, c=colors, alpha=.5)  # alpha is transparency
@@ -106,7 +124,7 @@ class AnimatedScatter(object):
         # Setup the figure and axes...
         self.fig, self.ax = plt.subplots()
         # Then setup FuncAnimation.
-        self.ani = animation.FuncAnimation(self.fig, self.update, frames=steps+1, interval=50,
+        self.ani = animation.FuncAnimation(self.fig, self.update, frames=steps+1, interval=100,
                                            init_func=self.setup_plot, blit=True)
 
     def setup_plot(self):
@@ -129,6 +147,7 @@ class AnimatedScatter(object):
 
 a = AnimatedScatter()
 if save_movie:
+
     a.ani.save('clip.mp4', writer='ffmpeg')
 
 plt.show()

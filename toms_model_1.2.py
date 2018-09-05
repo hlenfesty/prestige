@@ -5,7 +5,7 @@ from random import shuffle
 class PrestigeModel():
     """A model of prestiged biased copying."""
 
-    def __init__(self, N, width, height, donut, neighbor_distance, sigmas):
+    def __init__(self, N, width, height, donut, neighbor_distance, sigmas, innovate):
         # initialize the model
         self.num_agents = N
         self.width = width #THE WIDTH OF THE GRID
@@ -13,6 +13,7 @@ class PrestigeModel():
         self.donut = donut
         self.neighbor_distance = neighbor_distance
         self.sigmas = sigmas
+        self.innovate = innovate
 
         # agents are represented with a dictionary of arrays
         self.agents = {
@@ -81,15 +82,15 @@ class PrestigeModel():
         '''Advance the model by one step.'''
 
         # randomize the order of agents
-        indexes = list(range(self.num_agents))
-        shuffle(indexes)
-        for i in indexes:
+        indexes = list(range(self.num_agents)) #TAKE THE # OF AGENTS AND MAKE THEM INTO A LIST
+        shuffle(indexes) #SHUFFLE THIS LIST INTO A RANDOM ORDER
+        for i in indexes: #LOOP THROUGH THE LIST OF AGENTS CALLED INDEXES AND:
 
             #pick who to copy, 'copied' is a list of agents' copies
             probs = ((self.agents['copied']+1)**4)*np.exp(-self.agents['distance'][i, 
-                :]*3) 
-            probs = probs / sum(probs)
-            probs = ((self.agents[('copied'+1)/sum('copied'+1))**4
+                :]*3) #EXP'IATE COPIES MAKES AGENTS MORE INFLUENTIAL, EXP DIST ALLOWS DISTANT AGENTS TO BE COPIED AND GROUPS MORE CLUMPY
+            probs = probs / sum(probs) #NORMALIZE THE PROBABILITES
+            probs = ((self.agents[('copied'+1)/sum('copied'+1)]**4
 
 
             other_agent = list(range(self.num_agents))[np.random.multinomial(1, probs).argmax()]
@@ -101,7 +102,16 @@ class PrestigeModel():
 
         self.agents['belief_history'] = np.vstack((self.agents['belief_history'], self.agents['belief']))
         self.agents['copied_history'] = np.vstack((self.agents['copied_history'], self.agents['copied']))
-        
+        #create an innovate.history list?  keep a record of innovators somehow over time and space
+
+
+        if self.innovate:
+            #randomly choose an agent to be an innovator
+            I= np.random.choice(self.agents['id'])
+            #find the place of the Innovator in the belief array and give them a new belief 
+            self.agents['belief'[I-1]]= new_belief
+            #give the new belief a number that is greater than any of the existing beliefs so far
+            new_belief= max(self.agents['belief'])+1
 
         #self.agents[copied_b] = self.agents['copied'+1)/sum(copied+1)
 
