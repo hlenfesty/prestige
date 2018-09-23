@@ -3,24 +3,26 @@
 # how many repeat models
 repeats = 1
 # how many steps per model
-steps = 50
+steps = 200
 # population size
-N = 400
+N = 200
 # size of the world
-width = 20
+width =20
 height = 20
 # is it a torroidal world?
 donut = True
 # how far away agents count as neighbors
-neighbor_distance = 3
+neighbor_distance = 3 
 # Probability of innovation
-innovate = 0.02
-# population type: random, grid, villages, city
-population = "city"
+innovate = 0.001
+# population type: [random, grid, villages, city]
+populations = ["villages"]
 # exponential increase of prestige
-exponent = 4
+exponent = 1
+# penalize the distance of the agents
+distance_penalty= 4
 # calculate sigmas
-sigmas = True
+sigmas = False
 # save a movie of the simulation?
 save_movie = False
 
@@ -29,9 +31,12 @@ save_movie = False
 
 # imports
 import matplotlib.pyplot as plt
+#import matplotlib.cm as cm
 from model import PrestigeModel
 import numpy as np
 import pickle as pickle
+
+
 
 # create empty arrays
 all_copies = np.array([], dtype=int)
@@ -39,18 +44,23 @@ all_sigmas_local = np.array([], dtype=float)
 all_sigmas_global = np.array([], dtype=float)
 models = []
 
+#for N in (range(100))
+
+
 # create and run models
-for j in range(repeats):
-    models.append(PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, sigmas))
-    for i in range(steps):
-        models[j].step()
+# add 'for' layers here to vary other parameters e.g. exp 1:4
+for population in populations:
+    for j in range(repeats):
+        models.append(PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas))
+        for i in range(steps):
+            models[-1].step()
+        #print(models[-1].agents["belief_history"])
 
 #save the output of the model by 'pickling' the agent dictionary
 
-agents_dict = model.agents
 filename = 'pickled_models'
 outfile = open('pickled_models', 'wb') #write bytes
-pickle.dump(model.agents, outfile)
+pickle.dump(models, outfile)
 outfile.close()
 
 
@@ -104,11 +114,16 @@ model = models[0]
 xs = model.agents['x']
 ys = model.agents['y']
 colors = model.agents['belief']
-area = model.agents['copied'] #USED TO SAY COPIED_NORM BUT GAVE ME A TRACEBACK
-#area = model.agents['copied_b']
+area = model.agents['copied'] + 1 #makes the littlest dots visible
+
 
 plt.figure("heatmap")
-plt.scatter(xs, ys, s=area, c=colors, alpha=.5)  # alpha is transparency
+plt.scatter(xs, ys, s=area, c=colors, cmap='cool', alpha=0.5)
+cbar = plt.colorbar()
+
+plt.title("Bubble plot of Beliefs and Prestige")
+plt.show()
+
 
 # try making a video
 
@@ -124,14 +139,16 @@ class AnimatedScatter(object):
         # Setup the figure and axes...
         self.fig, self.ax = plt.subplots()
         # Then setup FuncAnimation.
-        self.ani = animation.FuncAnimation(self.fig, self.update, frames=steps+1, interval=100,
+        self.ani = animation.FuncAnimation(self.fig, self.update, frames=steps+1, interval=125,
                                            init_func=self.setup_plot, blit=True)
+
 
     def setup_plot(self):
         """Initial drawing of the scatter plot."""
         x, y, s, c = model.agents['x'], model.agents['y'], model.agents['copied_history'][0, :]+1, model.agents['belief_history'][0, :]
-        self.scat = self.ax.scatter(x, y, c=c, s=s, animated=True)
+        self.scat = self.ax.scatter(x, y, c=c, cmap='cool', s=s, animated=True)
         return self.scat,
+
 
     def update(self, i):
         """Update the scatter plot."""
@@ -150,4 +167,14 @@ if save_movie:
 
     a.ani.save('clip.mp4', writer='ffmpeg')
 
+plt.title("Evolution of Prestige-Based Copying")
 plt.show()
+
+
+
+
+
+
+
+
+

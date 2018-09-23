@@ -5,7 +5,7 @@ from random import shuffle
 class PrestigeModel():
     """A model of prestiged biased copying."""
 
-    def __init__(self, N, width, height, donut, neighbor_distance, innovate, population, exponent, sigmas): #exponent
+    def __init__(self, N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas): 
         # initialize the model
         self.num_agents = N
         self.width = width #THE WIDTH OF THE GRID
@@ -15,6 +15,7 @@ class PrestigeModel():
         self.innovate = innovate
         self.population = population
         self.exponent = exponent
+        self.distance_penalty = distance_penalty
         self.sigmas = sigmas
         
 
@@ -41,13 +42,13 @@ class PrestigeModel():
             # the number of times each agent has been copied_norm at each generation
             'copied_norm_history': np.zeros(shape=(self.num_agents), dtype=int),
             # the proportion of agents that have different beliefs to you
-            'sigma_global': np.ones(shape=(self.num_agents), dtype=float),
+            #'sigma_global': np.ones(shape=(self.num_agents), dtype=float),
             # the proportion of agents that had different beliefs to you at each generation
-            'sigma_global_history': np.ones(shape=(self.num_agents), dtype=float),
+            #'sigma_global_history': np.ones(shape=(self.num_agents), dtype=float),
             # the proportion of local agents that have different beliefs to you
-            'sigma_local': np.ones(shape=(self.num_agents), dtype=float),
+            #'sigma_local': np.ones(shape=(self.num_agents), dtype=float),
             # the propotion of local agents that had different beliefs to you at each generation
-            'sigma_local_history': np.ones(shape=(self.num_agents), dtype=float)
+            #'sigma_local_history': np.ones(shape=(self.num_agents), dtype=float)
         }
 
 # Create the agents
@@ -68,10 +69,10 @@ class PrestigeModel():
             for i in range(self.num_agents):
 
                 self.agents['id'][i] = round(i) #WHY DO YOU HAVE TO ROUND WHAT'S ALREADY AN INTEGER?
-                self.agents['x'][i] = np.random.random.round((i % self.width)) #TAKES THE AGENTS X COORDINATE, DIVIDES BY WIDTH OF GRID, GIVES REMAINDER
-                self.agents['y'][i] = round((i // self.height)) #// 'FLOOR DIVISIN': ROUNDS DOWN TO NEAREST WHOLE NUMBER
+                self.agents['x'][i] = np.random.random()*self.width 
+                self.agents['y'][i] = np.random.random()*self.height 
 
-        if population == "villages":
+        elif population == "villages":
 
             self.agents['x'][0:int((N/4))]= np.random.normal(loc=self.width/4, scale=self.width/40, size=int(N/4))
             self.agents['y'][0:int((N/4))]= np.random.normal(loc=self.height/4, scale= self.height/40, size=int(N/4))
@@ -79,7 +80,7 @@ class PrestigeModel():
             self.agents['x'][int(N/4):int(N/2)]= np.random.normal(loc=self.width/4, scale=self.width/40, size=int(N/4))
             self.agents['y'][int(N/4):int(N/2)]= np.random.normal(loc=self.height*3/4, scale= self.height/40, size=int(N/4))
 
-            self.agents['x'][int(N/2):inact((N/4)*3)]= np.random.normal(loc=self.height*3/4, scale= self.height/40, size=int(N/4))
+            self.agents['x'][int(N/2):int((N/4)*3)]= np.random.normal(loc=self.height*3/4, scale= self.height/40, size=int(N/4))
             self.agents['y'][int(N/2):int((N/4)*3)]= np.random.normal(loc=self.height/4, scale= self.height/40, size=int(N/4))
 
             self.agents['x'][int((N/4)*3):N]= np.random.normal(loc=self.height*3/4, scale= self.height/40, size=int(N/4))
@@ -91,18 +92,21 @@ class PrestigeModel():
 
                 self.agents['x'][i] = np.random.normal(loc=self.width/2, scale = self.width/20) #TAKES THE AGENTS X COORDINATE, DIVIDES BY WIDTH OF GRID, GIVES REMAINDER
                 self.agents['y'][i] = np.random.normal(loc=self.height/2, scale = self.height/20) #TAKES THE AGENTS X COORDINATE, DIVIDES BY WIDTH OF GRID, GIVES REMAINDER
-                self.agents['belief'][i] = round(i) #THIS MUST BE UPDATING ON EVERY MODEL STEP...
+                
 
-
-        
         else:
+            print(population)
             raise ValueError()
 
+        for i in range(self.num_agents):
+            self.agents['belief'][i] = round(i)
 
         # add the beliefs as the first row of the belief history matrix
         #SHUFFLING IS NECESSARY BECAUSE IDS INITIALLY MATCH BELIEFS
         shuffle(self.agents['belief'])
-        self.agents['belief_history'] = self.agents['belief']
+        print(self.agents['belief'])
+
+        self.agents['belief_history'] = np.array(self.agents['belief'])
 
         # create a distance matrix
         for i in range(self.num_agents):
@@ -136,7 +140,7 @@ class PrestigeModel():
 
             else:
                 #pick who to copy, 'copied' is a list of agents' copies
-                probs = ((self.agents['copied']+1)**self.exponent)*np.exp(-self.agents['distance'][i, :]*3)
+                probs = ((self.agents['copied']+1)**self.exponent)*np.exp(-self.agents['distance'][i, :]*self.distance_penalty)
                 # EXP'IATE COPIES MAKES AGENTS MORE INFLUENTIAL, EXP DIST ALLOWS DISTANT AGENTS TO BE COPIED AND GROUPS MORE CLUMPY
                 probs = probs / sum(probs) #NORMALIZE THE PROBABILITES
                 # probs = ((self.agents[('copied'+1)/sum('copied'+1)]**4
@@ -149,27 +153,29 @@ class PrestigeModel():
                     self.agents['copied'][other_agent] = self.agents['copied'][other_agent] + 1
                     self.agents['belief'][i] = self.agents['belief'][other_agent]
 
-        self.agents['belief_history'] = np.vstack((self.agents['belief_history'], self.agents['belief']))
+        #print(self.agents['belief_history'])
+        self.agents['belief_history'] = np.vstack((self.agents['belief_history'], np.array(self.agents['belief'])))
+        print(self.agents['belief_history'])
         self.agents['copied_history'] = np.vstack((self.agents['copied_history'], self.agents['copied']))
         #create an innovate.history list?  keep a record of innovators somehow over time and space
 
-        if self.sigmas:
+        #if self.sigmas:
             # calculate sigma global and sigma local
-            sigma_global = np.zeros(shape=(self.num_agents), dtype=float)
-            sigma_local = np.zeros(shape=(self.num_agents), dtype=float)
+            #sigma_global = np.zeros(shape=(self.num_agents), dtype=float)
+            #sigma_local = np.zeros(shape=(self.num_agents), dtype=float)
 
-            for i in list(range(self.num_agents)):
+            #for i in list(range(self.num_agents)):
                 # sigma global
-                sigma_global[i] = np.mean(self.agents['belief'] != self.agents['belief'][i])
+                #sigma_global[i] = np.mean(self.agents['belief'] != self.agents['belief'][i])
                 # sigma local
-                local_beliefs = np.array([b for b, d in zip(self.agents['belief'], self.agents['distance'][i, :]) if d <= self.neighbor_distance and d > 0])
-                sigma_local[i] = np.mean(local_beliefs != self.agents['belief'][i])
+                #local_beliefs = np.array([b for b, d in zip(self.agents['belief'], self.agents['distance'][i, :]) if d <= self.neighbor_distance and d > 0])
+                #sigma_local[i] = np.mean(local_beliefs != self.agents['belief'][i])
 
             # this line takes into account that sigma global includes yourself and so removes you from the calculation
-            sigma_global = (sigma_global)/(1-1/self.num_agents)
+            #sigma_global = (sigma_global)/(1-1/self.num_agents)
 
             # save it
-            self.agents['sigma_global'] = sigma_global
-            self.agents['sigma_local'] = sigma_local
-            self.agents['sigma_global_history'] = np.vstack((self.agents['sigma_global_history'], self.agents['sigma_global']))
-            self.agents['sigma_local_history'] = np.vstack((self.agents['sigma_local_history'], self.agents['sigma_local']))
+            #self.agents['sigma_global'] = sigma_global
+            #self.agents['sigma_local'] = sigma_local
+            #self.agents['sigma_global_history'] = np.vstack((self.agents['sigma_global_history'], self.agents['sigma_global']))
+            #self.agents['sigma_local_history'] = np.vstack((self.agents['sigma_local_history'], self.agents['sigma_local']))
