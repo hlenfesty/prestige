@@ -40,21 +40,10 @@ class PrestigeModel():
             # the number of times each agent had been copied at each generation
             'copied_history': np.zeros(shape=(self.num_agents), dtype=int),
             # the number of times each agent has been copied_norm at each generation
-            # 'copied_norm_history': np.zeros(shape=(self.num_agents), dtype=int),
-            # the proportion of agents that have different beliefs to you
-            #'sigma_global': np.ones(shape=(self.num_agents), dtype=float),
-            # the proportion of agents that had different beliefs to you at each generation
-            #'sigma_global_history': np.ones(shape=(self.num_agents), dtype=float),
-            # the proportion of local agents that have different beliefs to you
-            #'sigma_local': np.ones(shape=(self.num_agents), dtype=float),
-            # the propotion of local agents that had different beliefs to you at each generation
-            #'sigma_local_history': np.ones(shape=(self.num_agents), dtype=float)
         }
 
-# Create the agents
-# simply updates the id, x, y and belief values of the agent dictionary
-# WHY DO WE NEED TO UPDATE IDS AND COORDINATES IF THOSE DON'T CHANGE?
-
+        # Create the agents
+        # simply updates the id, x, y and belief values of the agent dictionary
         #to place agents evenly across the grid
         if population == "grid":
 
@@ -158,24 +147,3 @@ class PrestigeModel():
         # print(self.agents['belief_history'])
         self.agents['copied_history'] = np.vstack((self.agents['copied_history'], self.agents['copied']))
         #create an innovate.history list?  keep a record of innovators somehow over time and space
-
-        #if self.sigmas:
-            # calculate sigma global and sigma local
-            #sigma_global = np.zeros(shape=(self.num_agents), dtype=float)
-            #sigma_local = np.zeros(shape=(self.num_agents), dtype=float)
-
-            #for i in list(range(self.num_agents)):
-                # sigma global
-                #sigma_global[i] = np.mean(self.agents['belief'] != self.agents['belief'][i])
-                # sigma local
-                #local_beliefs = np.array([b for b, d in zip(self.agents['belief'], self.agents['distance'][i, :]) if d <= self.neighbor_distance and d > 0])
-                #sigma_local[i] = np.mean(local_beliefs != self.agents['belief'][i])
-
-            # this line takes into account that sigma global includes yourself and so removes you from the calculation
-            #sigma_global = (sigma_global)/(1-1/self.num_agents)
-
-            # save it
-            #self.agents['sigma_global'] = sigma_global
-            #self.agents['sigma_local'] = sigma_local
-            #self.agents['sigma_global_history'] = np.vstack((self.agents['sigma_global_history'], self.agents['sigma_global']))
-            #self.agents['sigma_local_history'] = np.vstack((self.agents['sigma_local_history'], self.agents['sigma_local']))
