@@ -5,7 +5,7 @@ repeats = 1
 # how many steps per model
 steps = 100
 # population size
-N = 200
+Ns = [200]
 # size of the world
 width =20
 height = 20
@@ -14,13 +14,13 @@ donut = True
 # how far away agents count as neighbors
 neighbor_distance = 3 
 # Probability of innovation
-innovate = 0.001
+innovates = [0.001]
 # population type: [random, grid, villages, city]
 populations = ["villages"]
 # exponential increase of prestige
-exponent = 1
+exponents = [1]
 # penalize the distance of the agents
-distance_penalty= 4
+distance_penalties = [4]
 # calculate sigmas
 sigmas = False
 # save a movie of the simulation?
@@ -49,11 +49,15 @@ models = []
 
 # create and run models
 # add 'for' layers here to vary other parameters e.g. exp 1:4
-for population in populations:
-    for j in range(repeats):
-        models.append(PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas))
-        for i in range(steps):
-            models[-1].step()
+for N in Ns:
+    for distance_penalty in distance_penalties:
+        for exponent in exponents:
+            for innovate in innovates:
+                for population in populations:
+                    for j in range(repeats):
+                        model = PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas)
+                        for i in range(steps):
+                            model.step()
         #print(models[-1].agents["belief_history"])
 
 #save the output of the model by 'pickling' the agent dictionary
