@@ -29,6 +29,8 @@ save_movie = False
 save_models = False
 # plot figures? (only applies to final model run)
 plot_figures = True
+# print data dict at end?
+print_data_dict = True
 
 
 ''' SIMULATION '''
@@ -37,6 +39,8 @@ plot_figures = True
 import matplotlib.pyplot as plt
 #import matplotlib.cm as cm
 from model import PrestigeModel
+import pickle_in
+import data
 import numpy as np
 import pickle as pickle
 
@@ -48,57 +52,7 @@ all_sigmas_local = np.array([], dtype=float)
 all_sigmas_global = np.array([], dtype=float)
 models = []
 
-data_dict = {
-    'num_agents': np.array([], dtype = int),
-    'width' : np.array([], dtype = int),
-    'height' : np.array([], dtype = int),
-    'donut' : np.array([], dtype = int),
-    'neighbor_distance' : np.array([], dtype = int),
-    'innovate' : np.array([], dtype = float),
-    'population' : np.array([], dtype = str), #need to change string to int index 
-    'exponent' : np.array([], dtype = float),
-    'distance_penalty' : np.array([], dtype = float),
-    'sigma_local' : np.array([], dtype = float),
-    'sigma_global' : np.array([], dtype = float),
-    'sigma_ratio' : np.array([], dtype = float),
-    'corr_sigloc_avgdist' : np.array([], dtype = float),
-    'corr_copied_avgdist' : np.array([], dtype = float),
-    'corr_beliefchg_avgdist' : np.array([], dtype = float),
-    'mean' : np.array([], dtype = float),
-    'median' : np.array([], dtype = float),
-    'mode' : np.array([], dtype = float),
-    'SD' : np.array([], dtype = float),
-    'Pearson_1' : np.array([], dtype = float),
-    'Pearson_2' : np.array([], dtype = float),
-    'Pearson_3' : np.array([], dtype = float),
-    'gini' : np.array([], dtype = float),
-}
-
-def save_model_results(model):
-    data_dict['num_agents'] = np.append(data_dict['num_agents'], model.num_agents)
-    data_dict['width'] = np.append(data_dict['width'], model.num_agents)
-    data_dict['height'] = np.append(data_dict['height'], model.num_agents)
-    data_dict['donut'] = np.append(data_dict['donut'], model.num_agents)
-    data_dict['neighbor_distance'] = np.append(data_dict['neighbor_distance'], model.num_agents)
-    data_dict['innovate'] = np.append(data_dict['innovate'], model.num_agents)
-    data_dict['population'] = np.append(data_dict['population'], model.num_agents)
-    data_dict['exponent'] = np.append(data_dict['exponent'], model.num_agents)
-    data_dict['distance_penalty'] = np.append(data_dict['distance_penalty'], model.num_agents)
-    data_dict['sigma_local'] = np.append(data_dict['sigma_local'], model.num_agents)
-    data_dict['sigma_global'] = np.append(data_dict['sigma_global'], model.num_agents)
-    data_dict['sigma_ratio'] = np.append(data_dict['sigma_ratio'], model.num_agents)
-    data_dict['corr_sigloc_avgdist'] = np.append(data_dict['corr_sigloc_avgdist'], model.num_agents)
-    data_dict['corr_copied_avgdist'] = np.append(data_dict['corr_copied_avgdist'], model.num_agents)
-    data_dict['corr_beliefchg_avgdist'] = np.append(data_dict['corr_beliefchg_avgdist'], model.num_agents)
-    data_dict['mean'] = np.append(data_dict['mean'], model.num_agents)
-    data_dict['median'] = np.append(data_dict['median'], model.num_agents)
-    data_dict['mode'] = np.append(data_dict['mode'], model.num_agents)
-    data_dict['SD'] = np.append(data_dict['SD'], model.num_agents)
-    data_dict['Pearson_1'] = np.append(data_dict['Pearson_1'], model.num_agents)
-    data_dict['Pearson_2'] = np.append(data_dict['Pearson_2'], model.num_agents)
-    data_dict['Pearson_3'] = np.append(data_dict['Pearson_3'], model.num_agents)
-    data_dict['gini'] = np.append(data_dict['gini'], model.num_agents)
-
+data_dict = data.new_data_dict()
 
 # create and run models
 # add 'for' layers here to vary other parameters e.g. exp 1:4
@@ -111,16 +65,19 @@ for N in Ns:
                         model = PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas)
                         for i in range(steps):
                             model.step()
-                        if save models:
+                        model = pickle_in.process_model(model)
+                        data_dict = data.save_model_results(model, data_dict)
+                        if save_models:
                             models.append(model)
                         else:
                             models = [model]
-                        save_model_results(model)
 
 filename = 'data'
 outfile = open('data', 'wb')
 pickle.dump(data_dict, outfile)
 outfile.close()
+if print_data_dict:
+    print(data_dict)
 
 if save_models:
     #save the output of the model by 'pickling' the list of model objects
