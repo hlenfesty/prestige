@@ -25,6 +25,8 @@ distance_penalties = [4]
 sigmas = False
 # save a movie of the simulation?
 save_movie = False
+# save the model objects?
+save_models = False
 
 
 ''' SIMULATION '''
@@ -110,6 +112,8 @@ for N in Ns:
                         model = PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas)
                         for i in range(steps):
                             model.step()
+                        if save models:
+                            models.append(model)
                         save_model_results(model)
 
 filename = 'data'
@@ -117,14 +121,12 @@ outfile = open('data', 'wb')
 pickle.dump(data_dict, outfile)
 outfile.close()
 
-        #print(models[-1].agents["belief_history"])
-
-#save the output of the model by 'pickling' the agent dictionary
-
-filename = 'pickled_models'
-outfile = open('pickled_models', 'wb') #write bytes
-pickle.dump(models, outfile)
-outfile.close()
+if save_models:
+    #save the output of the model by 'pickling' the list of model objects
+    filename = 'pickled_models'
+    outfile = open('pickled_models', 'wb') #write bytes
+    pickle.dump(models, outfile)
+    outfile.close()
 
 
 ''' PLOT FIGURES '''
