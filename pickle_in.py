@@ -34,18 +34,9 @@ def process_model(model):
 	corr_sigloc_avgdist = np.corrcoef(model.sigma_local, model.avg_dist)
 	model.corr_sigloc_avgdist = corr_sigloc_avgdist [0,1]
 
-	# #plot the sig local vs. distance correlation
-	# matplotlib.style.use('ggplot')
-	# plt.scatter(model.sigma_local, model.avg_dist)
-	# plt.show()
-
 	#correlate copies w distance
 	corr_copied_avgdist= np.corrcoef(model.agents['copied'], model.avg_dist)
 	model.corr_copied_avgdist = corr_copied_avgdist[0,1]
-
-	# matplotlib.style.use('ggplot')
-	# plt.scatter(model.agents['copied'], model.avg_dist)
-	# plt.show()
 
 	#Skewness:
 	#find the mean, median, mode and SD of the populations' copies distribution
@@ -82,10 +73,6 @@ def process_model(model):
 
 	corr_beliefchg_avgdist = np.corrcoef(model.belief_change, model.avg_dist)
 	model.corr_beliefchg_avgdist = corr_beliefchg_avgdist [0,1]
-
-	# matplotlib.style.use('ggplot')
-	# plt.scatter(model.belief_change, model.avg_dist)
-	# plt.show()
 
 	#compute the gini coefficient of prestige inequality
 	#sort the agents' number of copies from low to high

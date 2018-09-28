@@ -36,6 +36,7 @@ print_data_dict = True
 ''' SIMULATION '''
 
 # imports
+import matplotlib
 import matplotlib.pyplot as plt
 #import matplotlib.cm as cm
 from model import PrestigeModel
@@ -191,5 +192,20 @@ if plot_figures:
         a.ani.save('clip.mp4', writer='ffmpeg')
 
     plt.title("Evolution of Prestige-Based Copying")
+    plt.show()
+
+    # #plot the sig local vs. distance scatter plot
+    matplotlib.style.use('ggplot')
+    plt.scatter(model.sigma_local, model.avg_dist)
+    plt.show()
+
+    # plot the number of copies vs. avg distance scatter plot
+    matplotlib.style.use('ggplot')
+    plt.scatter(model.agents['copied'], model.avg_dist)
+    plt.show()
+
+    # plot a scatter plot of number of times belief changed vs avg distance
+    matplotlib.style.use('ggplot')
+    plt.scatter(model.belief_change, model.avg_dist)
     plt.show()
 
