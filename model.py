@@ -17,6 +17,7 @@ class PrestigeModel():
         self.exponent = exponent
         self.distance_penalty = distance_penalty
         self.sigmas = sigmas
+        self.steps = 0
         
 
         # agents are represented with a dictionary of arrays
@@ -116,7 +117,7 @@ class PrestigeModel():
 
     def step(self):
         '''Advance the model by one step.'''
-
+        self.steps += 1
         # randomize the order of agents
         indexes = list(range(self.num_agents)) #TAKE THE # OF AGENTS AND MAKE THEM INTO A LIST
         shuffle(indexes) #SHUFFLE THIS LIST INTO A RANDOM ORDER
