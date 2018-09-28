@@ -30,7 +30,7 @@ save_models = False
 # plot figures? (only applies to final model run)
 plot_figures = True
 # print data dict at end?
-print_data_dict = True
+print_data_dict = False
 
 
 ''' SIMULATION '''
@@ -57,12 +57,16 @@ data_dict = data.new_data_dict()
 
 # create and run models
 # add 'for' layers here to vary other parameters e.g. exp 1:4
+num_sims = len(Ns)*len(distance_penalties)*len(exponents)*len(innovates)*len(populations)*repeats
+current_sim = 1
 for N in Ns:
     for distance_penalty in distance_penalties:
         for exponent in exponents:
             for innovate in innovates:
                 for population in populations:
                     for j in range(repeats):
+                        print("Running model " + str(current_sim) + " of " + str(num_sims))
+                        current_sim += 1
                         model = PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas)
                         for i in range(steps):
                             model.step()
@@ -72,6 +76,7 @@ for N in Ns:
                             models.append(model)
                         else:
                             models = [model]
+print("Done!")
 
 filename = 'data'
 outfile = open('data', 'wb')
