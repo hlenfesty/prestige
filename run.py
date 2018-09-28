@@ -3,7 +3,7 @@
 # how many repeat models
 repeats = 1
 # how many steps per model
-steps = 200
+steps = 100
 # population size
 N = 200
 # size of the world
@@ -121,7 +121,7 @@ plt.figure("heatmap")
 plt.scatter(xs, ys, s=area, c=colors, cmap='cool', alpha=0.5)
 cbar = plt.colorbar()
 
-plt.title("Bubble plot of Beliefs and Prestige")
+plt.title("Bubble plot of Beliefs and Prestige: 'Big Man Societies in Villages'")
 plt.show()
 
 

@@ -1,4 +1,7 @@
-#to open or de-pickle the file:
+#This file add calculates and appends new variables created from data at the last step of each models
+#variables include local and global variation and their ratios (sigmas), mean, median, mode of the copies distributions
+#as well as Pearson skewness measures, gini coefficient of copies (in)equality, and various correlations
+
 import pickle as pickle
 import numpy as np
 from scipy import stats
@@ -11,18 +14,11 @@ infile = open('pickled_models', 'rb')
 models = pickle.load(infile)
 infile.close()
 
-# print(models)
-# print(models[0].donut)
-# print(models[0].num_agents)
-# print(models[0].agents)
-
-#ex:  how to add something to the 'pickle jar':
-#models[0].house = "house"
-#print(models[0].house)
+print(models)
 
 
 #calc "sigma local" and "sigma global" at the last step of the model only
-#this used to live in the model.py file and calc'd at every step;
+#this used to live in the model.py file and was calc'd at every step
 #calculate sigma global and sigma local, measures of similarity of beliefs to other agents from the persp of each focal.
 #0 is complete variation, 1 is no variation
 
@@ -38,25 +34,23 @@ for model in models:
 	    model.sigma_local[i] = np.mean(local_beliefs != model.agents['belief'][i])
 
 	#take the average of each agents's sigma ratio to get one value that's the overall model ratio
-	print(model.sigma_local)
-	print("break")
+	#print(model.sigma_local)
 
-	# ratio = 0 no loc sigma (divided by something), =1, equal local and global, >1, more local var than global, >0 <1 local is less than global
+	# ratio if = 0 no loc sigma (divided by something); if =1, equal local and global; >1, more local var than global; >0 <1 local is less than global
 	model.sigma_ratio = np.mean(model.sigma_local/model.sigma_global)
-	print(model.sigma_ratio)
-	# print(model.sigma_global)
-	# print(model.sigma_local)
+	#print(model.sigma_ratio)
 
 
-	print(model.agents['distance'])
+	#print(model.agents['distance'])
 
 	# get the avg distance of each focal agent to all other agents by to taking the mean of each column in the dist matrix
 	model.avg_dist = model.agents['distance'].mean(axis=0)     
-	print(model.avg_dist)
+	#print(model.avg_dist)
 
-	corr1= np.corrcoef(model.sigma_local, model.avg_dist)
-	print("correlation of sig local and dist")
-	print(corr1)
+	corr_sigloc_avgdist = np.corrcoef(model.sigma_local, model.avg_dist)
+	corr_sigloc_avgdist = corr_sigloc_avgdist [0,1]
+	print("correlation of sig local and average dist")
+	print(corr_sigloc_avgdist)
 
 	#plot the sig local vs. distance correlation
 	matplotlib.style.use('ggplot')
@@ -64,10 +58,10 @@ for model in models:
 	plt.show()
 
 	#correlate copies w distance
-
-	corr2= np.corrcoef(model.agents['copied'], model.avg_dist)
-	print ("correlation of copies and dist")
-	print(corr2)
+	corr_copied_avgdist= np.corrcoef(model.agents['copied'], model.avg_dist)
+	corr_copied_avgdist = corr_copied_avgdist[0,1]
+	print ("correlation of copies and average dist")
+	print(corr_copied_avgdist)
 
 	matplotlib.style.use('ggplot')
 	plt.scatter(model.agents['copied'], model.avg_dist)
@@ -77,12 +71,13 @@ for model in models:
 	#Skewness:
 	#find the mean, median, mode and SD of the populations' copies distribution
 
-	print("Copies", model.agents['copied'])
+	#print("Copies", model.agents['copied'])
 
 	model.mean = np.average(model.agents['copied'])
 	print("Mean", model.mean,)
 
 	model.mode = stats.mode(model.agents['copied'])
+	model.mode = float(np.mean(model.mode[0]))
 	print("Mode", model.mode)
 
 	model.median = np.median(model.agents['copied'])
@@ -95,15 +90,18 @@ for model in models:
 	#then a measure of the population's skewness of copies using the 3 Pearson's moments of skewness:
 
 	#Pearson 1st skewness, mode method:  x̅-Mo/SD
+
 	model.pearson_1 = (model.mean-model.mode)/model.sd
 	print("Pearson 1", model.pearson_1)
 
 	#Pearson's 2nd skewness, median method:  3(x̅-Md)/SD
+
 	model.pearson_2= (3*(model.mean-model.median))/model.sd
 	print("Pearson 2", model.pearson_2)
 
 	#Pearson's 3, mean method: (x̅-M/SD)^3  
 	#for every agent's number of copies (X) you subtract the mean (u) divide by the sd (sigma), and then cube the result. The coefficient of skewness is the average of these numbers
+
 	model.pearson_3 = np.zeros(shape=(model.num_agents), dtype=float)
 
 	for i in range(model.num_agents):
@@ -111,37 +109,62 @@ for model in models:
 		model.pearson_3[i] = (((model.agents['copied'][i])-model.mean)/model.sd)**3
 
 	#The coefficient of skewness is the average of these numbers
+
 	model.pearson_3 = np.average(model.pearson_3)
 	print("Pearson 3", model.pearson_3)
 
 
 	#find the N of belief changes in the belief history matrix
 	#convert the belief_history list into a pandas dataframe
+
 	model.belief_change= pd.DataFrame(model.agents['belief_history'])
-	print(model.belief_change)
+	#print(model.belief_change)
 
 	model.belief_change = model.belief_change.nunique(axis=0)
-	print(model.belief_change)
+	#print(model.belief_change)
 
 	model.belief_change = np.array(model.belief_change)
-	print(model.belief_change)
+	#print(model.belief_change)
 
-	corr3= np.corrcoef(model.belief_change, model.avg_dist)
-	print ("correlation of belief changes and dist")
-	print(corr2)
+	corr_beliefchg_avgdist = np.corrcoef(model.belief_change, model.avg_dist)
+	corr_beliefchg_avgdist = corr_beliefchg_avgdist [0,1]
+	print ("correlation of belief changes and average dist")
+	print(corr_beliefchg_avgdist)
 
 	matplotlib.style.use('ggplot')
 	plt.scatter(model.belief_change, model.avg_dist)
 	plt.show()
 
 	#compute the gini coefficient of prestige inequality
+	#print(model.agents['copied'])
 
-	print(model.agents['copied'])
-
-	x= np.sort(model.agents['copied'])
-
-
+	#sort the agents' number of copies from low to high
+	sorted_copies= np.sort(model.agents['copied'])
 
 
-	#then pickle close?
-	#the re-open pickle file to check?
+	#find the proportion of copies that each agent has out of the total copies in the populatiom
+
+	prop_copies = sorted_copies/sum(sorted_copies)
+
+
+	#find the cumulative proportion of copies out of the entire population-- ea agent ascending from least to most copies
+	cp_copies = np.cumsum(prop_copies)
+
+	#duplicate cp_copies to shift append a 0 to the front in order to take the avg of the upper bounds of cp_copies
+	cp_copies2 = np.append(np.array([0]), cp_copies[0:(model.num_agents-1)])
+
+	#find the area under the Lorenz curve:
+	#take the average of the upper bounds of agent's proportions of copies and multiply by the width of each agent's 'rectangle'
+
+	lorenz_area = sum((cp_copies + cp_copies2)/2 * 1/model.num_agents)
+
+	#calculate the Gini coeffecient by dividing the area between the line of equality and Lorenz curve (A)/ A + area under the curve
+
+	model.gini = 1-2*(lorenz_area)
+	print ("Gini Coefficient", model.gini)
+
+filename = 'pickled_models'
+outfile = open('pickled_models', 'wb') #write bytes
+pickle.dump(models, outfile)
+outfile.close()
+

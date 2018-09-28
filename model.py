@@ -36,11 +36,11 @@ class PrestigeModel():
             # the number of times each agent has been copied
             'copied': np.zeros(shape=(self.num_agents), dtype=int),
             # a normalized variant of 'copied' for the purposes of plotting circles with a finite area
-            'copied_norm': np.zeros(shape=(self.num_agents), dtype=float),
+            # 'copied_norm': np.zeros(shape=(self.num_agents), dtype=float),
             # the number of times each agent had been copied at each generation
             'copied_history': np.zeros(shape=(self.num_agents), dtype=int),
             # the number of times each agent has been copied_norm at each generation
-            'copied_norm_history': np.zeros(shape=(self.num_agents), dtype=int),
+            # 'copied_norm_history': np.zeros(shape=(self.num_agents), dtype=int),
             # the proportion of agents that have different beliefs to you
             #'sigma_global': np.ones(shape=(self.num_agents), dtype=float),
             # the proportion of agents that had different beliefs to you at each generation
@@ -74,17 +74,17 @@ class PrestigeModel():
 
         elif population == "villages":
 
-            self.agents['x'][0:int((N/4))]= np.random.normal(loc=self.width/4, scale=self.width/40, size=int(N/4))
-            self.agents['y'][0:int((N/4))]= np.random.normal(loc=self.height/4, scale= self.height/40, size=int(N/4))
+            self.agents['x'][0:int((N/4))]= np.random.normal(loc=self.width/4, scale=self.width/20, size=int(N/4))
+            self.agents['y'][0:int((N/4))]= np.random.normal(loc=self.height/4, scale= self.height/20, size=int(N/4))
 
-            self.agents['x'][int(N/4):int(N/2)]= np.random.normal(loc=self.width/4, scale=self.width/40, size=int(N/4))
-            self.agents['y'][int(N/4):int(N/2)]= np.random.normal(loc=self.height*3/4, scale= self.height/40, size=int(N/4))
+            self.agents['x'][int(N/4):int(N/2)]= np.random.normal(loc=self.width/4, scale=self.width/20, size=int(N/4))
+            self.agents['y'][int(N/4):int(N/2)]= np.random.normal(loc=self.height*3/4, scale= self.height/20, size=int(N/4))
 
-            self.agents['x'][int(N/2):int((N/4)*3)]= np.random.normal(loc=self.height*3/4, scale= self.height/40, size=int(N/4))
-            self.agents['y'][int(N/2):int((N/4)*3)]= np.random.normal(loc=self.height/4, scale= self.height/40, size=int(N/4))
+            self.agents['x'][int(N/2):int((N/4)*3)]= np.random.normal(loc=self.height*3/4, scale= self.height/20, size=int(N/4))
+            self.agents['y'][int(N/2):int((N/4)*3)]= np.random.normal(loc=self.height/4, scale= self.height/20, size=int(N/4))
 
-            self.agents['x'][int((N/4)*3):N]= np.random.normal(loc=self.height*3/4, scale= self.height/40, size=int(N/4))
-            self.agents['y'][int((N/4)*3):N]= np.random.normal(loc=self.height*3/4, scale= self.height/40, size=int(N/4))
+            self.agents['x'][int((N/4)*3):N]= np.random.normal(loc=self.height*3/4, scale= self.height/20, size=int(N/4))
+            self.agents['y'][int((N/4)*3):N]= np.random.normal(loc=self.height*3/4, scale= self.height/20, size=int(N/4))
 
         elif population == "city":
 

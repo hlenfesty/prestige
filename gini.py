@@ -12,11 +12,27 @@ def compute_gini(model):
 
 #compute gini 
 
-x= np.sort(model.agents['copied'])
-N= model.num_agents
 
-for i in range(model.num_agents)
-	gini_copies = sum(xi * (n-i) for i, xi in enumerate(x))/(N*sum(x))
+
+
+for model in models:
+
+	#sort the agents' number of copies from low to high
+	model.copied_sorted= np.sort(model.agents['copied'])
+	#calculate each agents' cumulative proportion of the population at the respective index-- but this has to match up 
+ 	model.prop_pop = np.zeros(shape=(model.num_agents), dtype=float)
+	for i in models.copied_sorted:
+		model.prop_pop[i]= ((N-i)+1)/N
+
+	print(model.prop_pop)
+
+
+
+
+
+
+
+
 
 
 
