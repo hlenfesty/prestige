@@ -95,7 +95,7 @@ class PrestigeModel():
                 
 
         else:
-            print(population)
+            # print(population)
             raise ValueError()
 
         for i in range(self.num_agents):
@@ -104,7 +104,7 @@ class PrestigeModel():
         # add the beliefs as the first row of the belief history matrix
         #SHUFFLING IS NECESSARY BECAUSE IDS INITIALLY MATCH BELIEFS
         shuffle(self.agents['belief'])
-        print(self.agents['belief'])
+        # print(self.agents['belief'])
 
         self.agents['belief_history'] = np.array(self.agents['belief'])
 
@@ -155,7 +155,7 @@ class PrestigeModel():
 
         #print(self.agents['belief_history'])
         self.agents['belief_history'] = np.vstack((self.agents['belief_history'], np.array(self.agents['belief'])))
-        print(self.agents['belief_history'])
+        # print(self.agents['belief_history'])
         self.agents['copied_history'] = np.vstack((self.agents['copied_history'], self.agents['copied']))
         #create an innovate.history list?  keep a record of innovators somehow over time and space
 
