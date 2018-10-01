@@ -18,7 +18,13 @@ class PrestigeModel():
         self.distance_penalty = distance_penalty
         self.sigmas = sigmas
         self.steps = 0
-        
+
+        # if population is 'grid', make sure num_agents is a square number
+        if population == "grid":
+            dum = int((round(self.num_agents**0.5))**2)
+            if dum != self.num_agents:
+                print("Warning: grid structure requires N be a square number, but N is {}, setting it to {} instead".format(self.num_agents, dum))
+                self.num_agents = dum
 
         # agents are represented with a dictionary of arrays
         self.agents = {
@@ -48,11 +54,13 @@ class PrestigeModel():
         #to place agents evenly across the grid
         if population == "grid":
 
+            x_step = self.width / (self.num_agents**0.5)
+            y_step = self.height / (self.num_agents**0.5)
             for i in range(self.num_agents):
 
                 self.agents['id'][i] = round(i) #WHY DO YOU HAVE TO ROUND WHAT'S ALREADY AN INTEGER?
-                self.agents['x'][i] = round((i % self.width)) #TAKES THE AGENTS X COORDINATE, DIVIDES BY WIDTH OF GRID, GIVES REMAINDER
-                self.agents['y'][i] = round((i // self.height)) #// 'FLOOR DIVISIN': ROUNDS DOWN TO NEAREST WHOLE NUMBER
+                self.agents['x'][i] = i*x_step % self.width #TAKES THE AGENTS X COORDINATE, DIVIDES BY WIDTH OF GRID, GIVES REMAINDER
+                self.agents['y'][i] = (i // int(self.num_agents**0.5))*y_step #// 'FLOOR DIVISIN': ROUNDS DOWN TO NEAREST WHOLE NUMBER
 
         elif population == "random":
 
