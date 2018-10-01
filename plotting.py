@@ -2,29 +2,41 @@
 def plot_figures(model, save_movie, sigmas):
     import matplotlib
     import matplotlib.pyplot as plt
+    import numpy as np
+    
     if sigmas:
+        avg_sigmas_local = np.zeros(shape=(model.steps + 1), dtype=float)
+        avg_sigmas_global = np.zeros(shape=(model.steps + 1), dtype=float)
+        
+        for s in range(model.steps + 1):
+            # calculate sigma global and sigma local
+            sigma_global = np.zeros(shape=(model.num_agents), dtype=float)
+            sigma_local = np.zeros(shape=(model.num_agents), dtype=float)
+
+            for i in range(model.num_agents):
+                # sigma global
+                sigma_global[i] = np.mean(model.agents['belief_history'][s,] != model.agents['belief_history'][s, i])
+                # sigma local
+                local_beliefs = np.array([b for b, d in zip(model.agents['belief_history'][s,], model.agents['distance'][i, :]) if d <= model.neighbor_distance and d > 0])
+                sigma_local[i] = np.mean(local_beliefs != model.agents['belief_history'][s, i])
+
+            avg_sigmas_local[s] = np.mean(sigma_local)
+            avg_sigmas_global[s] = np.mean(sigma_global)
 
         # plot sigmas over time
         plt.figure("variation over time")
-        agents = model.agents  # get the list of agents from the scheduler from the model
-        avg_sigmas_local = agents['sigma_local_history'].mean(axis=1)
-        avg_sigmas_global = agents['sigma_global_history'].mean(axis=1)
-
-        time = range(steps + 1)
+        time = range(model.steps + 1)
         plt.plot(time, avg_sigmas_local, color='orange')
         plt.plot(time, avg_sigmas_global, color='blue')
         plt.xlabel('time')
         plt.ylabel('local vs global variation')
         plt.title('local vs global variation over time')
 
-        # #plot histogram of sigmas
-        all_sigmas_local = np.append(all_sigmas_local, model.agents['sigma_local'])
-        all_sigmas_global = np.append(all_sigmas_global, model.agents['sigma_global'])
-
+        # # #plot histogram of sigmas
         plt.figure("global variance")
-        plt.hist(all_sigmas_global)
+        plt.hist(sigma_global)
         plt.figure("local variance")
-        plt.hist(all_sigmas_local)
+        plt.hist(sigma_local)
 
     # #plot the frequency of N copies
     all_copies = model.agents['copied']
