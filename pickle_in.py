@@ -1,4 +1,5 @@
 #This file add calculates and appends new variables created from data at the last step of each models
+#calculate post-hoc variables here after each model run
 #variables include local and global variation and their ratios (sigmas), mean, median, mode of the copies distributions
 #as well as Pearson skewness measures, gini coefficient of copies (in)equality, and various correlations
 
@@ -14,6 +15,7 @@ import matplotlib.pyplot as plt
 #0 is complete variation, 1 is no variation
 
 def process_model(model):
+
 	model.sigma_global = np.zeros(shape=(model.num_agents), dtype=float)
 	model.sigma_local = np.zeros(shape=(model.num_agents), dtype=float)
 
@@ -35,17 +37,17 @@ def process_model(model):
 	model.corr_sigloc_avgdist = corr_sigloc_avgdist [0,1]
 
 	#correlate copies w distance
-	corr_copied_avgdist= np.corrcoef(model.agents['copied'], model.avg_dist)
+	corr_copied_avgdist= np.corrcoef(model.agents['prestige'], model.avg_dist)
 	model.corr_copied_avgdist = corr_copied_avgdist[0,1]
 
 	#Skewness:
-	#find the mean, median, mode and SD of the populations' copies distribution
+	#find the mean, median, mode and SD of the populations' distribution of prestige
 
-	model.mean = np.average(model.agents['copied'])
-	model.mode = stats.mode(model.agents['copied'])
+	model.mean = np.average(model.agents['prestige'])
+	model.mode = stats.mode(model.agents['prestige'])
 	model.mode = float(np.mean(model.mode[0]))
-	model.median = np.median(model.agents['copied'])
-	model.sd = np.std(model.agents['copied'])
+	model.median = np.median(model.agents['prestige'])
+	model.sd = np.std(model.agents['prestige'])
 
 	#then a measure of the population's skewness of copies using the 3 Pearson's moments of skewness:
 	#Pearson 1st skewness, mode method:  x-Mo/SD
@@ -60,7 +62,7 @@ def process_model(model):
 
 	for i in range(model.num_agents):
 		# for every agent's number of copies (X) you subtract the mean (u) divide by the sd (sigma), and then cube the result
-		model.pearson_3[i] = (((model.agents['copied'][i])-model.mean)/model.sd)**3
+		model.pearson_3[i] = (((model.agents['prestige'][i])-model.mean)/model.sd)**3
 
 	#The coefficient of skewness is the average of these numbers
 	model.pearson_3 = np.average(model.pearson_3)
@@ -75,8 +77,8 @@ def process_model(model):
 	model.corr_beliefchg_avgdist = corr_beliefchg_avgdist [0,1]
 
 	#compute the gini coefficient of prestige inequality
-	#sort the agents' number of copies from low to high
-	sorted_copies= np.sort(model.agents['copied'])
+	#sort the agents' prestige from low to high
+	sorted_copies= np.sort(model.agents['prestige'])
 	#find the proportion of copies that each agent has out of the total copies in the populatiom
 	prop_copies = sorted_copies/sum(sorted_copies)
 	#find the cumulative proportion of copies out of the entire population-- ea agent ascending from least to most copies

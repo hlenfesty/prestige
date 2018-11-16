@@ -1,11 +1,12 @@
 import numpy as np
 from random import shuffle
+import pandas as pd
 
 
 class PrestigeModel():
     """A model of prestiged biased copying."""
 
-    def __init__(self, N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas): 
+    def __init__(self, N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas, k): 
         # initialize the model
         self.num_agents = N
         self.width = width #THE WIDTH OF THE GRID
@@ -17,6 +18,7 @@ class PrestigeModel():
         self.exponent = exponent
         self.distance_penalty = distance_penalty
         self.sigmas = sigmas
+        self.k = k
         self.steps = 0
 
         # if population is 'grid', make sure num_agents is a square number
@@ -46,8 +48,13 @@ class PrestigeModel():
             # 'copied_norm': np.zeros(shape=(self.num_agents), dtype=float),
             # the number of times each agent had been copied at each generation
             'copied_history': np.zeros(shape=(self.num_agents), dtype=int),
-            # the number of times each agent has been copied_norm at each generation
+            # agents prestige as a function of memory decay
+            'prestige': np.zeros(shape=(self.num_agents), dtype=float),
+            #agents' prestige history over all steps
+            'prestige_history': np.zeros(shape=(self.num_agents), dtype=float)
         }
+
+
 
         # Create the agents
         # simply updates the id, x, y and belief values of the agent dictionary
@@ -129,6 +136,13 @@ class PrestigeModel():
         # randomize the order of agents
         indexes = list(range(self.num_agents)) #TAKE THE # OF AGENTS AND MAKE THEM INTO A LIST
         shuffle(indexes) #SHUFFLE THIS LIST INTO A RANDOM ORDER
+
+        #make a list called 'ages' that rank orders/enumerates the steps so far, w/the newest step being the largest, oldest step the smallest
+        ages = np.flip(list(range(1, self.agents['copied_history'].shape[0]+1)), 0)
+        #k is the decay rate
+        k=self.k
+        decay = np.exp(-ages*k)
+
         for i in indexes: #LOOP THROUGH THE LIST OF AGENTS CALLED INDEXES AND:
 
             if np.random.random() < self.innovate:
@@ -138,10 +152,23 @@ class PrestigeModel():
 
             else:
                 #pick who to copy, 'copied' is a list of agents' copies
-                probs = ((self.agents['copied']+1)**self.exponent)*np.exp(-self.agents['distance'][i, :]*self.distance_penalty)
+                
+                if np.size(['copied_history', 0]) == 1 : #when copied_history is 0 rows long (first step of model)
+
+                    probs = ((self.agents['copied']+1)**self.exponent)*np.exp(-self.agents['distance'][i, :]*self.distance_penalty)
+
+                else: #when copied history array is more than 1 row (after first step of model)
+                    #take each agents' copied_history, multiply it by our decay rule across each COLUMN (which is agents copied hist)
+                    prestige_data = self.agents['copied_history']*decay[:, np.newaxis]
+                    #take the sum of each agents prestige data column and 
+                    self.agents['prestige'] = np.sum(prestige_data, axis = 0) + self.agents['copied']
+                    
+                    probs = ((self.agents['prestige']+1)**self.exponent)*np.exp(-self.agents['distance'][i, :]*self.distance_penalty)   
+
                 # EXP'IATE COPIES MAKES AGENTS MORE INFLUENTIAL, EXP DIST ALLOWS DISTANT AGENTS TO BE COPIED AND GROUPS MORE CLUMPY
-                probs = probs / sum(probs) #NORMALIZE THE PROBABILITES
-                # probs = ((self.agents[('copied'+1)/sum('copied'+1)]**4
+                
+                #normalize the probs
+                probs = probs / sum(probs) 
 
                 #access the np.random library to use the multinomial
                 other_agent = np.random.multinomial(1, probs).argmax()
@@ -151,8 +178,22 @@ class PrestigeModel():
                     self.agents['copied'][other_agent] = self.agents['copied'][other_agent] + 1
                     self.agents['belief'][i] = self.agents['belief'][other_agent]
 
-        #print(self.agents['belief_history'])
+        #apppend the current beliefs, copies, and prestige to a historical list 
         self.agents['belief_history'] = np.vstack((self.agents['belief_history'], np.array(self.agents['belief'])))
-        # print(self.agents['belief_history'])
+        
         self.agents['copied_history'] = np.vstack((self.agents['copied_history'], self.agents['copied']))
+
+        self.agents['prestige_history'] = np.vstack((self.agents['prestige_history'], self.agents['prestige']))
+
+        #wipe the ['copied'] and ['prestige'] lists clean and reset to zeros
+
+        #self.agents['prestige'] = np.zeros(shape=self.num_agents, dtype=float)
+        self.agents['copied'] = np.zeros(shape=(self.num_agents), dtype=int)
+
+        #print("Copied_History", self.agents['copied_history'])
+      
+
+
+
+
         #create an innovate.history list?  keep a record of innovators somehow over time and space

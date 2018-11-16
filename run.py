@@ -1,11 +1,11 @@
 ''' PARAMETERS '''
 
 # how many repeat models
-repeats = 2
+repeats = 1
 # how many steps per model
 steps = 100
 # population size
-Ns = [200]
+Ns = [400]
 # size of the world
 width =20
 height = 20
@@ -14,15 +14,17 @@ donut = True
 # how far away agents count as neighbors
 neighbor_distance = 3 
 # Probability of innovation
-innovates = [0.001]
+innovates = [0]
 # population type: [random, grid, villages, city]
-populations = ["villages", "random"]
+populations = ["random"]
 # exponential increase of prestige
-exponents = [1]
+exponents = [1.5]
 # penalize the distance of the agents
-distance_penalties = [4]
+distance_penalties = [3]
 # calculate sigmas
-sigmas = False
+sigmas = True
+# set the strenght of prestige memory decay 
+k = 0.2
 # save a movie of the simulation?
 save_movie = False
 # save the model objects?
@@ -65,7 +67,7 @@ for N in Ns:
                     for j in range(repeats):
                         print("Running model " + str(current_sim) + " of " + str(num_sims))
                         current_sim += 1
-                        model = PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas)
+                        model = PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas, k)
                         for i in range(steps):
                             model.step()
                         model = pickle_in.process_model(model)

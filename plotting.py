@@ -1,4 +1,7 @@
 ''' PLOT FIGURES '''
+
+import matplotlib.patches as mpatches
+
 def plot_figures(model, save_movie, sigmas):
     import matplotlib
     import matplotlib.pyplot as plt
@@ -24,13 +27,16 @@ def plot_figures(model, save_movie, sigmas):
             avg_sigmas_global[s] = np.mean(sigma_global)
 
         # plot sigmas over time
-        plt.figure("variation over time")
+        plt.figure("Variation Over Time")
         time = range(model.steps + 1)
+        plt.ylim(0, 1)
         plt.plot(time, avg_sigmas_local, color='orange')
         plt.plot(time, avg_sigmas_global, color='blue')
-        plt.xlabel('time')
-        plt.ylabel('local vs global variation')
-        plt.title('local vs global variation over time')
+        plt.xlabel('Time')
+        plt.ylabel('Variation of Beliefs')
+        plt.title('Local vs Global Variation Over Time')
+        plt.show()
+
 
         # # #plot histogram of sigmas
         plt.figure("global variance")
@@ -38,29 +44,30 @@ def plot_figures(model, save_movie, sigmas):
         plt.figure("local variance")
         plt.hist(sigma_local)
 
-    # #plot the frequency of N copies
-    all_copies = model.agents['copied']
-    plt.figure("copies")
-    plt.hist(all_copies)
+    # plot the frequency of Prestige (used to be 'copied')
+    all_prestige = model.agents['prestige']
+    plt.figure("Prestige")
+    plt.hist(all_prestige)
 
     #figure 2 plot the frequency of belief types
-    plt.figure("beliefs")
+    plt.figure("Beliefs")
     beliefs = model.agents['belief']  # get a list of the end beliefs
     plt.hist(beliefs)
 
-    #plot beliefs and N copies together
+    #plot beliefs and Prestige (used to be 'copied') together
     xs = model.agents['x']
     ys = model.agents['y']
     colors = model.agents['belief']
-    area = model.agents['copied'] + 1 #makes the littlest dots visible
+    area = model.agents['prestige'] + 1 #makes the littlest dots visible
 
 
-    plt.figure("heatmap")
+    plt.figure("Bubbleplot")
     plt.scatter(xs, ys, s=area, c=colors, cmap='cool', alpha=0.5)
     cbar = plt.colorbar()
 
-    plt.title("Bubble plot of Beliefs and Prestige: 'Big Man Societies in Villages'")
+    plt.title("Bubble plot of Beliefs and Prestige")
     plt.show()
+
 
 
     # try making a video
@@ -76,21 +83,24 @@ def plot_figures(model, save_movie, sigmas):
 
             # Setup the figure and axes...
             self.fig, self.ax = plt.subplots()
+
+
+
             # Then setup FuncAnimation.
-            self.ani = animation.FuncAnimation(self.fig, self.update, frames=model.steps+1, interval=125,
+            self.ani = animation.FuncAnimation(self.fig, self.update, frames=model.steps+1, interval=100,
                                                init_func=self.setup_plot, blit=True)
 
 
         def setup_plot(self):
             """Initial drawing of the scatter plot."""
-            x, y, s, c = model.agents['x'], model.agents['y'], model.agents['copied_history'][0, :]+1, model.agents['belief_history'][0, :]
+            x, y, s, c = model.agents['x'], model.agents['y'], model.agents['prestige_history'][0, :]+1, model.agents['belief_history'][0, :]
             self.scat = self.ax.scatter(x, y, c=c, cmap='cool', s=s, animated=True)
             return self.scat,
 
 
         def update(self, i):
             """Update the scatter plot."""
-            s, c = model.agents['copied_history'][i, :]+1, model.agents['belief_history'][i, :]
+            s, c = ((model.agents['prestige_history'][i, :]+1)*1)**2, model.agents['belief_history'][i, :] % model.num_agents
 
             # Set sizes...
             self.scat._sizes = s
@@ -102,11 +112,12 @@ def plot_figures(model, save_movie, sigmas):
 
     a = AnimatedScatter(model)
     if save_movie:
-
-        a.ani.save('clip.mp4', writer='ffmpeg')
+        dpi=500
+        a.ani.save('clip.mp4', writer='ffmpeg', dpi=dpi)
 
     plt.title("Evolution of Prestige-Based Copying")
     plt.show()
+
 
     # #plot the sig local vs. distance scatter plot
     matplotlib.style.use('ggplot')
@@ -115,7 +126,7 @@ def plot_figures(model, save_movie, sigmas):
 
     # plot the number of copies vs. avg distance scatter plot
     matplotlib.style.use('ggplot')
-    plt.scatter(model.agents['copied'], model.avg_dist)
+    plt.scatter(model.agents['prestige'], model.avg_dist)
     plt.show()
 
     # plot a scatter plot of number of times belief changed vs avg distance
