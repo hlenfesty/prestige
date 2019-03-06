@@ -3,9 +3,9 @@
 # how many repeat models
 repeats = 1
 # how many steps per model
-steps = 100
+steps = 200
 # population size
-Ns = [400]
+Ns = [200]
 # size of the world
 width =20
 height = 20
@@ -14,23 +14,25 @@ donut = True
 # how far away agents count as neighbors
 neighbor_distance = 3 
 # Probability of innovation
-innovates = [0]
+innovates = [.01]
 # population type: [random, grid, villages, city]
 populations = ["random"]
 # exponential increase of prestige
-exponents = [1.5]
+exponents = [4]
 # penalize the distance of the agents
 distance_penalties = [3]
 # calculate sigmas
 sigmas = True
-# set the strenght of prestige memory decay 
-k = 0.2
+# calculate the gini coefficient over time (at each step)
+gini_time = True
+# set the strength of prestige memory decay
+k = [0.2]
 # save a movie of the simulation?
-save_movie = False
-# save the model objects?
-save_models = False
+save_movie = True
+# save the model objects? (does this save every step??)
+save_models = True
 # plot figures? (only applies to final model run)
-plot_figures = True
+plot_figures = True    
 # print data dict at end?
 print_data_dict = False
 
@@ -67,7 +69,7 @@ for N in Ns:
                     for j in range(repeats):
                         print("Running model " + str(current_sim) + " of " + str(num_sims))
                         current_sim += 1
-                        model = PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas, k)
+                        model = PrestigeModel(N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas, gini_time, k)
                         for i in range(steps):
                             model.step()
                         model = pickle_in.process_model(model)
@@ -93,4 +95,4 @@ if save_models:
     outfile.close()
 
 if plot_figures:
-    plotting.plot_figures(model, save_movie, sigmas)
+    plotting.plot_figures(model, save_movie, sigmas, gini_time)

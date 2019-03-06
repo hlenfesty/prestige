@@ -6,18 +6,18 @@ import matplotlib.pyplot as plt
 from scipy.stats import sem, t
 from scipy import mean
 
-
+#make the Gini heatmap
 def plot_heatmap(x, y, z, others):
 
-	unpickle_data = open("data_1","rb")
+	unpickle_data = open("data","rb")
 	data_in = pickle.load(unpickle_data)
-	data_1= pd.DataFrame(data_in)
-	print(data_1)
+	data= pd.DataFrame(data_in)
+	print(data)
 
 	# subset data
-	sub_data = data_1
+	sub_data = data
 	for o in others:
-		sub_data = sub_data.loc[data_1[o] == others[o]]
+		sub_data = sub_data.loc[data[o] == others[o]]
 	# #get a particular value from a column in the dataframe
 	# test= data.loc[data['population'] == "random"]
 	# print(test)
@@ -31,8 +31,8 @@ def plot_heatmap(x, y, z, others):
 
 	# innovs = np.sort(list(set(data['innovate'])))
 	# exps = np.sort(list(set(data['exponent'])))
-	xs = np.sort(list(set(data_1[x])))
-	ys = np.sort(list(set(data_1[y])))
+	xs = np.sort(list(set(data[x])))
+	ys = np.sort(list(set(data[y])))
 # print(innovs)
 # exps = [0,4]
 # n_repeats = 4
@@ -136,7 +136,7 @@ def plot_heatmap(x, y, z, others):
 	                       ha="center", va="center", color="black", size=6)
 
 
-	ax.set_title("Gini Coefficients:  Prestige as N Copies" + "\n" + "Random, (N=200)", size=12, weight="bold")
+	ax.set_title("Ratio of Local/Global Belief Variation" + "\n" + "Random, (N=200)", size=12, weight="bold")
 	plt.xlabel("Prestige Exponent")
 	plt.ylabel("Probability of Innovation")
 	fig.tight_layout()
@@ -155,7 +155,7 @@ def plot_heatmap(x, y, z, others):
 # print(test2)
 
 #Gini plots:  set vmin/vmax to 0/1
-plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'random'})
+#plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'random'})
 #plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'villages'})
 #plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'grid'})
 #plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'city'})
@@ -179,7 +179,7 @@ plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'random
 #plot_heatmap(x='exponent', y='innovate', z='corr_copied_avgdist', others={'population': 'city'})
 
 #sigma_ratio_avgdist: set vmin/vmax to -1/1
-#plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'random'})
+plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'random'})
 #plot_heatmap(x='exponent', y='innovate', z='sigma_global', others={'population': 'villages'})
 #plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'grid'})
 #plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'city'})

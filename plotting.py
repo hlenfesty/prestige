@@ -2,7 +2,7 @@
 
 import matplotlib.patches as mpatches
 
-def plot_figures(model, save_movie, sigmas):
+def plot_figures(model, save_movie, sigmas, gini_time):
     import matplotlib
     import matplotlib.pyplot as plt
     import numpy as np
@@ -27,7 +27,7 @@ def plot_figures(model, save_movie, sigmas):
             avg_sigmas_global[s] = np.mean(sigma_global)
 
         # plot sigmas over time
-        plt.figure("Variation Over Time")
+        plt.figure("Local vs Global Variation Over Time")
         time = range(model.steps + 1)
         plt.ylim(0, 1)
         plt.plot(time, avg_sigmas_local, color='orange')
@@ -37,12 +37,65 @@ def plot_figures(model, save_movie, sigmas):
         plt.title('Local vs Global Variation Over Time')
         plt.show()
 
-
         # # #plot histogram of sigmas
         plt.figure("global variance")
         plt.hist(sigma_global)
         plt.figure("local variance")
         plt.hist(sigma_local)
+
+
+    if gini_time:
+
+        gini_t = []
+
+        for i in range(model.steps + 1):
+
+
+            #compute the gini coefficient of prestige inequality of each model at each timestep
+
+            #sort the agents' prestige from low to high
+            sort = np.sort(model.agents['prestige_history'][i,])
+            #find the proportion of copies that each agent has out of the total copies in the populatiom
+            proportion = sort/sum(sort)
+            #find the cumulative proportion of copies out of the entire population-- ea agent ascending from least to most copies
+            cp = np.cumsum(proportion)
+            #duplicate cp_copies to shift append a 0 to the front in order to take the avg of the upper bounds of cp_copies
+            cp_2 = np.append(np.array([0]), cp[0:(model.num_agents-1)])
+            #find the area under the Lorenz curve:
+            #take the average of the upper bounds of agent's proportions of copies and multiply by the width of each agent's 'rectangle'
+            lorenz= sum((cp + cp_2)/2 * 1/model.num_agents)
+            #calculate the Gini coeffecient by dividing the area between the line of equality and Lorenz curve (A)/ A + area under the curve
+            gini_t.append(1-2*(lorenz))
+
+
+        #plot ginis over time
+        plt.figure("Gini coefficients of prestige over time")
+        time = range(model.steps + 1)
+        plt.ylim(0, 1)
+        plt.plot(time, gini_t, color='green')
+        plt.xlabel('Time')
+        plt.ylabel('Ginis')
+        plt.title('Gini coefficeints over time')
+        plt.show()
+
+        prestige_t = []
+
+        for i in range(model.steps + 1):
+            
+            prestige_t.append(sum(model.agents['prestige_history'][i,]))
+
+
+        #plot ginis over time
+        plt.figure("Sum of prestige over time")
+        time = range(model.steps + 1)
+        #plt.ylim(0, 1)
+        plt.plot(time, prestige_t, color='green')
+        plt.xlabel('Time')
+        plt.ylabel('Total prestige')
+        plt.title('Sum of prestige over time')
+        plt.show()
+
+
 
     # plot the frequency of Prestige (used to be 'copied')
     all_prestige = model.agents['prestige']
@@ -58,7 +111,7 @@ def plot_figures(model, save_movie, sigmas):
     xs = model.agents['x']
     ys = model.agents['y']
     colors = model.agents['belief']
-    area = model.agents['prestige'] + 1 #makes the littlest dots visible
+    area = model.agents['prestige'] + 25 #makes the littlest dots visible
 
 
     plt.figure("Bubbleplot")

@@ -6,7 +6,7 @@ import pandas as pd
 class PrestigeModel():
     """A model of prestiged biased copying."""
 
-    def __init__(self, N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas, k): 
+    def __init__(self, N, width, height, donut, neighbor_distance, innovate, population, exponent, distance_penalty, sigmas, gini_time, k): 
         # initialize the model
         self.num_agents = N
         self.width = width #THE WIDTH OF THE GRID
@@ -18,6 +18,7 @@ class PrestigeModel():
         self.exponent = exponent
         self.distance_penalty = distance_penalty
         self.sigmas = sigmas
+        self.gini_time= gini_time
         self.k = k
         self.steps = 0
 
@@ -132,7 +133,7 @@ class PrestigeModel():
 
     def step(self):
         '''Advance the model by one step.'''
-        self.steps += 1
+        self.steps += 1 
         # randomize the order of agents
         indexes = list(range(self.num_agents)) #TAKE THE # OF AGENTS AND MAKE THEM INTO A LIST
         shuffle(indexes) #SHUFFLE THIS LIST INTO A RANDOM ORDER
