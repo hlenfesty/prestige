@@ -142,6 +142,7 @@ class PrestigeModel():
         ages = np.flip(list(range(1, self.agents['copied_history'].shape[0]+1)), 0)
         #k is the decay rate
         k=self.k
+        #let the decay be the sum(?) of prestige at each step raised to the neg power of the index of the step * k
         decay = np.exp(-ages*k)
 
         for i in indexes: #LOOP THROUGH THE LIST OF AGENTS CALLED INDEXES AND:
@@ -154,7 +155,7 @@ class PrestigeModel():
             else:
                 #pick who to copy, 'copied' is a list of agents' copies
                 
-                if np.size(['copied_history', 0]) == 1 : #when copied_history is 0 rows long (first step of model)
+                if np.size(['copied_history', 0]) == 1 : #if the size of copied_history is equal to 0 rows long, i.e., the (first step of model), then
 
                     probs = ((self.agents['copied']+1)**self.exponent)*np.exp(-self.agents['distance'][i, :]*self.distance_penalty)
 

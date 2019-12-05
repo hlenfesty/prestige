@@ -111,8 +111,8 @@ def plot_figures(model, save_movie, sigmas, gini_time):
     xs = model.agents['x']
     ys = model.agents['y']
     colors = model.agents['belief']
-    area = model.agents['prestige'] + 25 #makes the littlest dots visible
-
+    #area = model.agents['prestige'] + 25 #makes the littlest dots visible
+    area = (model.agents['prestige'] + 1)**1.5
 
     plt.figure("Bubbleplot")
     plt.scatter(xs, ys, s=area, c=colors, cmap='cool', alpha=0.5)
@@ -153,7 +153,7 @@ def plot_figures(model, save_movie, sigmas, gini_time):
 
         def update(self, i):
             """Update the scatter plot."""
-            s, c = ((model.agents['prestige_history'][i, :]+1)*1)**2, model.agents['belief_history'][i, :] % model.num_agents
+            s, c = ((model.agents['prestige_history'][i, :]+1)*1)**1.5, model.agents['belief_history'][i, :] % model.num_agents
 
             # Set sizes...
             self.scat._sizes = s

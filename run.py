@@ -5,7 +5,7 @@ repeats = 1
 # how many steps per model
 steps = 200
 # population size
-Ns = [200]
+Ns = [400]
 # size of the world
 width =20
 height = 20
@@ -14,11 +14,11 @@ donut = True
 # how far away agents count as neighbors
 neighbor_distance = 3 
 # Probability of innovation
-innovates = [.01]
+innovates = [.1]
 # population type: [random, grid, villages, city]
 populations = ["random"]
 # exponential increase of prestige
-exponents = [4]
+exponents = [0]
 # penalize the distance of the agents
 distance_penalties = [3]
 # calculate sigmas
@@ -30,9 +30,9 @@ k = [0.2]
 # save a movie of the simulation?
 save_movie = True
 # save the model objects? (does this save every step??)
-save_models = True
+save_models = False
 # plot figures? (only applies to final model run)
-plot_figures = True    
+plot_figures = True   
 # print data dict at end?
 print_data_dict = False
 

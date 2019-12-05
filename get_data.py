@@ -136,7 +136,7 @@ def plot_heatmap(x, y, z, others):
 	                       ha="center", va="center", color="black", size=6)
 
 
-	ax.set_title("Ratio of Local/Global Belief Variation" + "\n" + "Random, (N=200)", size=12, weight="bold")
+	ax.set_title("Ratio of Local/Global Belief Variation" + "\n" + "Random, (N=400)", size=12, weight="bold")
 	plt.xlabel("Prestige Exponent")
 	plt.ylabel("Probability of Innovation")
 	fig.tight_layout()
@@ -154,7 +154,7 @@ def plot_heatmap(x, y, z, others):
 # test2= data.loc[data['population'].isin(["random", "villages"])]
 # print(test2)
 
-#Gini plots:  set vmin/vmax to 0/1
+#MAIN FIG IN PAPER Gini plots:  set vmin/vmax to 0/1
 #plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'random'})
 #plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'villages'})
 #plot_heatmap(x='exponent', y='innovate', z='gini', others={'population': 'grid'})
@@ -178,10 +178,15 @@ def plot_heatmap(x, y, z, others):
 #plot_heatmap(x='exponent', y='innovate', z='corr_copied_avgdist', others={'population': 'grid'})
 #plot_heatmap(x='exponent', y='innovate', z='corr_copied_avgdist', others={'population': 'city'})
 
-#sigma_ratio_avgdist: set vmin/vmax to -1/1
-plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'random'})
+# MAIN FIG IN PAPER sigma_ratio_avgdist: set vmin/vmax to -1/1
+#plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'random'})
 #plot_heatmap(x='exponent', y='innovate', z='sigma_global', others={'population': 'villages'})
 #plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'grid'})
 #plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'city'})
 
-
+#Corr_Gini_vs_Sigma_ratio: set vmin/vmax to -1/1
+#need to calc the correlation
+#plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'random'})
+#plot_heatmap(x='exponent', y='innovate', z='sigma_global', others={'population': 'villages'})
+#plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'grid'})
+#plot_heatmap(x='exponent', y='innovate', z='sigma_ratio', others={'population': 'city'})
